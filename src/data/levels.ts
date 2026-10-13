@@ -1,0 +1,331 @@
+import type { Level, WordInfo } from './types'
+
+// Content rules: every sentence below is original (no commercial lyrics).
+// Secret words are curated and checked by engine.test.ts against the wheel letters.
+const w = (text: string, translation: string, example: string): WordInfo => ({ text, translation, example })
+
+export const LEVELS: Level[] = [
+  // ───────────── Everyday City ─────────────
+  {
+    id: 'city-bread',
+    worldId: 'city',
+    difficulty: 'beginner',
+    category: 'Food',
+    decoys: 'o',
+    main: {
+      text: 'bread',
+      translation: 'pão',
+      meaning: 'Food made from flour and baked in an oven.',
+      example: 'I eat bread with butter every morning.',
+      cloze: { sentence: 'Can I have some ___ and butter, please?', distractors: ['bear', 'beard'] },
+    },
+    secretWords: [
+      w('beard', 'barba', 'He has a long grey beard.'),
+      w('read', 'ler', 'I read a book before bed.'),
+      w('bear', 'urso', 'A bear lives in the forest.'),
+      w('dare', 'ousar', 'I dare you to jump!'),
+      w('road', 'estrada', 'The road is long and quiet.'),
+      w('ear', 'orelha', 'My left ear hurts.'),
+      w('red', 'vermelho', 'She wears a red hat.'),
+    ],
+    sentences: [
+      { text: 'I buy fresh bread every morning.', translation: 'Eu compro pão fresco toda manhã.' },
+      { text: 'She likes bread with cheese.', translation: 'Ela gosta de pão com queijo.' },
+    ],
+  },
+  {
+    id: 'city-street',
+    worldId: 'city',
+    difficulty: 'intermediate',
+    category: 'Places',
+    decoys: 'a',
+    main: {
+      text: 'street',
+      translation: 'rua',
+      meaning: 'A road in a town with buildings on both sides.',
+      example: 'The bus stops on my street.',
+      cloze: { sentence: 'Look both ways before you cross the ___.', distractors: ['stream', 'tree'] },
+    },
+    secretWords: [
+      w('tree', 'árvore', 'The tree is very tall.'),
+      w('rest', 'descansar', 'I need to rest after lunch.'),
+      w('test', 'teste', 'We have a test on Friday.'),
+      w('steer', 'guiar', 'Please steer the boat to the left.'),
+      w('reset', 'reiniciar', 'Reset your password today.'),
+      w('tester', 'testador', 'The tester found a small bug.'),
+    ],
+    sentences: [
+      { text: 'The shop is on the next street.', translation: 'A loja fica na próxima rua.' },
+      { text: 'Please cross the street carefully.', translation: 'Por favor, atravesse a rua com cuidado.' },
+    ],
+  },
+  {
+    id: 'city-pharmacy',
+    worldId: 'city',
+    difficulty: 'advanced',
+    category: 'Services',
+    decoys: 'e',
+    main: {
+      text: 'pharmacy',
+      translation: 'farmácia',
+      meaning: 'A shop where you can buy medicine.',
+      example: 'The pharmacy is next to the bank.',
+      cloze: { sentence: 'I need to buy some medicine at the ___.', distractors: ['bakery', 'library'] },
+    },
+    secretWords: [
+      w('charm', 'charme', 'The old town has a lot of charm.'),
+      w('march', 'marchar', 'They march through the city.'),
+      w('champ', 'campeão', 'Our team is the champ!'),
+      w('cramp', 'câimbra', 'I felt a cramp in my leg.'),
+      w('army', 'exército', 'He joined the army last year.'),
+      w('camp', 'acampar', 'We camp near the lake.'),
+    ],
+    sentences: [
+      { text: 'The pharmacy closes at nine tonight.', translation: 'A farmácia fecha às nove hoje à noite.' },
+      { text: 'I picked up my medicine at the pharmacy.', translation: 'Eu peguei meu remédio na farmácia.' },
+    ],
+  },
+
+  // ───────────── Music World ─────────────
+  {
+    id: 'music-guitar',
+    worldId: 'music',
+    difficulty: 'beginner',
+    category: 'Instruments',
+    decoys: 'e',
+    main: {
+      text: 'guitar',
+      translation: 'violão / guitarra',
+      meaning: 'A musical instrument with strings.',
+      example: 'He plays the guitar every night.',
+      cloze: { sentence: 'She plays the ___ in a rock band.', distractors: ['drum', 'piano'] },
+    },
+    secretWords: [
+      w('great', 'ótimo', 'That was a great show.'),
+      w('gait', 'jeito de andar', 'He has a slow gait.'),
+      w('rug', 'tapete', 'The rug is soft and warm.'),
+      w('tug', 'puxar', 'Tug the rope gently.'),
+      w('art', 'arte', 'I love modern art.'),
+      w('air', 'ar', 'The air is fresh today.'),
+    ],
+    sentences: [
+      { text: 'My brother bought a new guitar.', translation: 'Meu irmão comprou um violão novo.' },
+      { text: 'She tunes the guitar before the show.', translation: 'Ela afina o violão antes do show.' },
+    ],
+  },
+  {
+    id: 'music-melody',
+    worldId: 'music',
+    difficulty: 'intermediate',
+    category: 'Sounds',
+    decoys: 'a',
+    main: {
+      text: 'melody',
+      translation: 'melodia',
+      meaning: 'A group of notes that makes a tune.',
+      example: "I can't stop humming that melody.",
+      cloze: { sentence: 'The ___ of this song is easy to remember.', distractors: ['medal', 'model'] },
+    },
+    secretWords: [
+      w('model', 'modelo', 'She is a fashion model.'),
+      w('demo', 'demonstração', 'Watch the demo video first.'),
+      w('medal', 'medalha', 'He won a gold medal.'),
+      w('mole', 'toupeira', 'A mole digs under the ground.'),
+      w('old', 'velho', 'My grandfather is old but strong.'),
+      w('dome', 'cúpula', 'The dome is made of glass.'),
+    ],
+    sentences: [
+      { text: 'She plays a sweet melody on the piano.', translation: 'Ela toca uma melodia doce no piano.' },
+      { text: 'This melody makes me feel happy.', translation: 'Esta melodia me deixa feliz.' },
+    ],
+  },
+  {
+    id: 'music-symphony',
+    worldId: 'music',
+    difficulty: 'advanced',
+    category: 'Concerts',
+    decoys: 'a',
+    main: {
+      text: 'symphony',
+      translation: 'sinfonia',
+      meaning: 'A long piece of music for a big orchestra.',
+      example: 'The orchestra played a beautiful symphony.',
+      cloze: { sentence: 'The orchestra performed a ___ by a famous composer.', distractors: ['melody', 'whisper'] },
+    },
+    secretWords: [
+      w('phony', 'falso', 'That phone call felt phony.'),
+      w('hymn', 'hino', 'We sang a hymn together.'),
+      w('pony', 'pônei', 'She rides a small pony.'),
+      w('nosy', 'enxerido', 'My neighbor is very nosy.'),
+      w('shy', 'tímido', 'He is shy with new people.'),
+      w('spy', 'espião', 'A spy keeps many secrets.'),
+    ],
+    sentences: [
+      { text: 'The symphony begins very softly.', translation: 'A sinfonia começa muito suavemente.' },
+      { text: 'We went to hear a symphony on Friday.', translation: 'Fomos ouvir uma sinfonia na sexta.' },
+    ],
+  },
+
+  // ───────────── Travel Quest ─────────────
+  {
+    id: 'travel-ticket',
+    worldId: 'travel',
+    difficulty: 'beginner',
+    category: 'Transport',
+    decoys: 's',
+    main: {
+      text: 'ticket',
+      translation: 'passagem / ingresso',
+      meaning: 'A small paper that lets you travel or enter a place.',
+      example: 'I bought a ticket for the concert.',
+      cloze: { sentence: 'Please show your ___ at the gate.', distractors: ['kite', 'stick'] },
+    },
+    secretWords: [
+      w('kite', 'pipa', 'The kite flies high today.'),
+      w('tick', 'marcar', 'Tick the box with a pen.'),
+      w('stick', 'vara', 'Pick up that stick.'),
+      w('ice', 'gelo', 'Put some ice in the glass.'),
+      w('tie', 'gravata', 'He wears a blue tie.'),
+      w('cite', 'citar', 'Always cite your sources.'),
+    ],
+    sentences: [
+      { text: 'I need a ticket to the museum.', translation: 'Preciso de um ingresso para o museu.' },
+      { text: 'Where can I buy a train ticket?', translation: 'Onde posso comprar uma passagem de trem?' },
+    ],
+  },
+  {
+    id: 'travel-airport',
+    worldId: 'travel',
+    difficulty: 'intermediate',
+    category: 'Places',
+    decoys: 'e',
+    main: {
+      text: 'airport',
+      translation: 'aeroporto',
+      meaning: 'A place where planes take off and land.',
+      example: 'We arrived at the airport two hours early.',
+      cloze: { sentence: 'Our plane leaves from the ___ at six.', distractors: ['harbor', 'station'] },
+    },
+    secretWords: [
+      w('port', 'porto', 'The ship is in port.'),
+      w('trip', 'viagem', 'Our trip was really fun.'),
+      w('pair', 'par', 'I bought a pair of shoes.'),
+      w('part', 'parte', 'This is the best part.'),
+      w('raptor', 'ave de rapina', 'A raptor hunts from the sky.'),
+      w('pirate', 'pirata', 'A pirate sails the sea.'),
+    ],
+    sentences: [
+      { text: 'We arrive at the airport at noon.', translation: 'Chegamos ao aeroporto ao meio-dia.' },
+      { text: 'The airport is very busy today.', translation: 'O aeroporto está muito movimentado hoje.' },
+    ],
+  },
+  {
+    id: 'travel-passport',
+    worldId: 'travel',
+    difficulty: 'advanced',
+    category: 'Documents',
+    decoys: 'e',
+    main: {
+      text: 'passport',
+      translation: 'passaporte',
+      meaning: 'An official document that lets you travel to other countries.',
+      example: "Don't forget your passport at the hotel.",
+      cloze: { sentence: 'You need a valid ___ to travel abroad.', distractors: ['postcard', 'suitcase'] },
+    },
+    secretWords: [
+      w('sport', 'esporte', 'Soccer is my favorite sport.'),
+      w('strap', 'alça', 'Fix the strap of your bag.'),
+      w('pass', 'passar', 'Pass me the salt, please.'),
+      w('post', 'enviar pelo correio', 'I will post the letter today.'),
+      w('past', 'passado', 'In the past, we walked to school.'),
+      w('trap', 'armadilha', 'The mouse is in the trap.'),
+    ],
+    sentences: [
+      { text: 'Please show your passport at the desk.', translation: 'Por favor, mostre seu passaporte no balcão.' },
+      { text: 'I keep my passport in a safe place.', translation: 'Eu guardo meu passaporte em um lugar seguro.' },
+    ],
+  },
+
+  // ───────────── Mystery Words ─────────────
+  {
+    id: 'mystery-secret',
+    worldId: 'mystery',
+    difficulty: 'beginner',
+    category: 'Ideas',
+    decoys: 'l',
+    main: {
+      text: 'secret',
+      translation: 'segredo',
+      meaning: 'Something that only a few people know.',
+      example: 'Can you keep a secret?',
+      cloze: { sentence: "Please don't tell anyone, it's a ___.", distractors: ['crest', 'secure'] },
+    },
+    secretWords: [
+      w('crest', 'crista', 'The bird has a red crest.'),
+      w('rest', 'descansar', 'Let us rest for a minute.'),
+      w('tree', 'árvore', 'A tree grows by the river.'),
+      w('reset', 'reiniciar', 'Press the button to reset it.'),
+      w('terse', 'seco / direto', 'Her answer was short and terse.'),
+      w('erect', 'ereto', 'Stand erect and look ahead.'),
+    ],
+    sentences: [
+      { text: 'Can you keep a secret?', translation: 'Você consegue guardar um segredo?' },
+      { text: 'This is our little secret.', translation: 'Este é o nosso segredinho.' },
+    ],
+  },
+  {
+    id: 'mystery-mystery',
+    worldId: 'mystery',
+    difficulty: 'intermediate',
+    category: 'Stories',
+    decoys: 'a',
+    main: {
+      text: 'mystery',
+      translation: 'mistério',
+      meaning: 'Something strange that is hard to explain.',
+      example: 'The missing key is a mystery.',
+      cloze: { sentence: 'Nobody knows who took it. It is a real ___.', distractors: ['history', 'master'] },
+    },
+    secretWords: [
+      w('stem', 'caule', 'The stem of the flower is green.'),
+      w('terms', 'termos', 'Read the terms first.'),
+      w('master', 'mestre', 'He is a chess master.'),
+      w('yet', 'ainda', 'I am not ready yet.'),
+      w('try', 'tentar', 'Try again, you can do it!'),
+      w('yes', 'sim', 'Yes, I can help you.'),
+    ],
+    sentences: [
+      { text: 'The missing key is a mystery.', translation: 'A chave perdida é um mistério.' },
+      { text: 'She loves to read a good mystery.', translation: 'Ela adora ler um bom mistério.' },
+    ],
+  },
+  {
+    id: 'mystery-labyrinth',
+    worldId: 'mystery',
+    difficulty: 'advanced',
+    category: 'Adventure',
+    decoys: 'e',
+    main: {
+      text: 'labyrinth',
+      translation: 'labirinto',
+      meaning: 'A complicated set of paths where it is easy to get lost.',
+      example: 'The explorers got lost in the labyrinth.',
+      cloze: { sentence: 'He got lost in a ___ of dark tunnels.', distractors: ['harbor', 'library'] },
+    },
+    secretWords: [
+      w('brain', 'cérebro', 'Use your brain!'),
+      w('train', 'trem', 'The train is late.'),
+      w('birth', 'nascimento', 'Her birth was in May.'),
+      w('hairy', 'peludo', 'The dog is very hairy.'),
+      w('hint', 'dica', 'Give me a hint, please.'),
+      w('lair', 'covil', 'The lion went back to its lair.'),
+      w('learn', 'aprender', 'I learn English every day.'),
+    ],
+    sentences: [
+      { text: 'The treasure is hidden deep inside the labyrinth.', translation: 'O tesouro está escondido no fundo do labirinto.' },
+      { text: 'They wandered through the labyrinth for hours.', translation: 'Eles vagaram pelo labirinto por horas.' },
+    ],
+  },
+]
+
+export const levelById = (id: string) => LEVELS.find((l) => l.id === id)!
