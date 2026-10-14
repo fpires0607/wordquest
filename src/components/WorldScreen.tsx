@@ -1,6 +1,5 @@
 import type { CSSProperties } from 'react'
-import { LEVELS } from '../data/levels'
-import { worldById } from '../data/worlds'
+import { levelsOfWorld, worldById } from '../data/worlds'
 import { levelProgress, useProgress } from '../state/store'
 import { DIFF_LABEL } from './Home'
 import { CoinBadge, SoundToggle } from './ui'
@@ -8,7 +7,7 @@ import { CoinBadge, SoundToggle } from './ui'
 export function WorldScreen({ worldId, onBack, onLevel }: { worldId: string; onBack(): void; onLevel(id: string): void }) {
   const p = useProgress()
   const world = worldById(worldId)
-  const levels = LEVELS.filter((l) => l.worldId === worldId)
+  const levels = levelsOfWorld(worldId)
   return (
     <div className="screen world-screen" style={{ '--from': world.theme.from, '--to': world.theme.to, '--accent': world.theme.accent } as CSSProperties}>
       <header className="topbar">
@@ -16,7 +15,7 @@ export function WorldScreen({ worldId, onBack, onLevel }: { worldId: string; onB
           ←
         </button>
         <div className="top-title">
-          <small>World</small>
+          <small>{world.kind === 'mode' ? 'Special mode' : 'World'}</small>
           <b>
             {world.icon} {world.title}
           </b>

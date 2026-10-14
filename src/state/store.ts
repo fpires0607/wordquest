@@ -1,39 +1,19 @@
 import { useSyncExternalStore } from 'react'
 import type { Difficulty } from '../data/types'
+import { freshProgress, migrateProgress, sanitizeInterests, type LevelProgress, type Progress } from './migrate'
 
-export interface LevelProgress {
-  completed: boolean
-  sentenceDone: boolean
-  secrets: string[] // secret words already discovered (and rewarded)
-  plays: number
-}
-export interface WordProgress {
-  reviews: number
-  lastSeen: number
-}
-export interface Progress {
-  version: 1
-  coins: number
-  playerLevel: Difficulty
-  sound: boolean
-  levels: Record<string, LevelProgress>
-  words: Record<string, WordProgress> // main words only (secrets don't count as mastery)
-}
+export type { LevelProgress, Progress, MeaningProgress } from './migrate'
 
-const KEY = 'wordquest:v1'
-const fresh = (): Progress => ({ version: 1, coins: 5, playerLevel: 'beginner', sound: true, levels: {}, words: {} })
+const KEY = 'wordquest:v1' // key kept on purpose: the payload carries its own `version`, migrated on load
 
 function load(): Progress {
   try {
     const raw = localStorage.getItem(KEY)
-    if (raw) {
-      const p = JSON.parse(raw)
-      if (p?.version === 1) return { ...fresh(), ...p }
-    }
+    if (raw) return migrateProgress(JSON.parse(raw))
   } catch {
     /* storage unavailable or corrupted: start fresh */
   }
-  return fresh()
+  return freshProgress()
 }
 
 let state: Progress = load()
@@ -65,12 +45,12 @@ function patchLevel(id: string, fn: (l: LevelProgress) => LevelProgress, coins =
 
 export const actions = {
   startPlay: (id: string) => patchLevel(id, (l) => ({ ...l, plays: l.plays + 1 })),
-  /** Returns true only on the first completion (reward granted once). */
-  completeMain(id: string, word: string, reward: number) {
+  /** Returns true only on the first completion (reward granted once). Mastery is recorded for that level's sense only. */
+  completeMain(id: string, senseId: string, reward: number) {
     const l = levelProgress(state, id)
     if (l.completed) return false
     patchLevel(id, (x) => ({ ...x, completed: true }), reward)
-    commit({ ...state, words: { ...state.words, [word]: state.words[word] ?? { reviews: 0, lastSeen: Date.now() } } })
+    commit({ ...state, meanings: { ...state.meanings, [senseId]: state.meanings[senseId] ?? { reviews: 0, lastSeen: Date.now() } } })
     return true
   },
   completeSentence(id: string, reward: number) {
@@ -90,11 +70,15 @@ export const actions = {
     return true
   },
   earn: (n: number) => commit({ ...state, coins: state.coins + n }),
-  reviewed(word: string) {
-    const prev = state.words[word] ?? { reviews: 0, lastSeen: 0 }
-    commit({ ...state, words: { ...state.words, [word]: { reviews: prev.reviews + 1, lastSeen: Date.now() } } })
+  reviewed(senseId: string) {
+    const prev = state.meanings[senseId] ?? { reviews: 0, lastSeen: 0 }
+    commit({ ...state, meanings: { ...state.meanings, [senseId]: { reviews: prev.reviews + 1, lastSeen: Date.now() } } })
   },
   setPlayerLevel: (playerLevel: Difficulty) => commit({ ...state, playerLevel }),
+  /** Replaces the player's interests (unknown ids dropped). Level progress is never touched. */
+  setInterests: (ids: string[]) => commit({ ...state, interests: sanitizeInterests(ids) }),
+  completeOnboarding: (playerLevel: Difficulty, interests: string[]) =>
+    commit({ ...state, playerLevel, interests: sanitizeInterests(interests), onboarded: true }),
   toggleSound: () => commit({ ...state, sound: !state.sound }),
-  reset: () => commit(fresh()),
+  reset: () => commit(freshProgress()),
 }

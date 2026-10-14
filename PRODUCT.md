@@ -27,17 +27,22 @@ Jogo **casual de palavras em inglês**, com cara de jogo mobile (não de platafo
 - Validação em módulo **separado** da avaliação da palavra principal (`engine/secrets.ts` vs `engine/evaluate.ts`).
 - Se um palpite com o tamanho da palavra principal for um anagrama listado como secreta (ex.: BREAD → BEARD), conta como secreta.
 
-## Mundos
-Estrutura de dados (`World`): `id`, `title`, `description`, `theme` (cores/ícone), `categories`, `levelIds`. Progresso independente por mundo (derivado dos níveis). Conquistas/colecionáveis: campo futuro, não implementado.
+## Mundos (Fase 2)
+Mundos são **áreas de interesse**; nível de proficiência é uma escolha separada (qualquer mundo mistura iniciante→avançado).
 
-| Mundo | Identidade | Níveis do protótipo |
+| Mundo | Fases | Observação |
 |---|---|---|
-| Everyday City | cidade ensolarada | BREAD (iniciante), STREET (interm.), PHARMACY (avançado) |
-| Music World | roxo/neon | GUITAR, MELODY, SYMPHONY |
-| Travel Quest | céu/aventura | TICKET, AIRPORT, PASSPORT |
-| Mystery Words | noite/mistério | SECRET, MYSTERY, LABYRINTH |
+| Travel World | ticket, airport, passport | |
+| Business World | meeting | conteúdo novo |
+| Music World | guitar, melody, symphony | só conteúdo original (ver *Music World*) |
+| Movies & Series | series | conteúdo novo |
+| Everyday Life | bread, street, pharmacy | antigo *Everyday City* (ids `city-*` mantidos) |
+| Slang & Culture | chill | conteúdo novo |
+| **Mystery Words** (modo especial, `kind: 'mode'`) | secret, mystery, labyrinth | deixou de ser mundo de interesse; progresso preservado |
 
-O jogador escolhe mundos livremente; o seletor de nível de inglês só **recomenda** fases (todas ficam destravadas).
+- **Onboarding:** nível + **múltiplos interesses** (mín. 1); editável depois (✏️ na Home). Mundos escolhidos aparecem primeiro; os demais ficam em *More worlds*; todos continuam acessíveis.
+- Estrutura: `World { kind: 'interest' | 'mode', levelIds, theme, categories }`; `Level.worldId`. Novo mundo/fase = só dados.
+- **Ids de fase são estáveis** (o progresso usa o id), mesmo quando a fase muda de mundo.
 
 ## Fluxo de uma fase
 `Palavra principal` → `Cartão da palavra` (tradução, explicação, exemplo, 🔊) → `Frase` (ordenar) → `Revisão rápida` (cloze com palavra já aprendida, se houver) → `Celebração`. Palavras secretas podem ser achadas a qualquer momento e depois, na revisita.
@@ -52,3 +57,30 @@ Backend, contas, 3D/animações complexas, anúncios/compras, conquistas, rankin
 ## Stack e arquitetura
 React + TypeScript + Vite, `localStorage` (`wordquest:v1`), Web Speech API para pronúncia, WebAudio para efeitos.
 Lógica de jogo pura em `src/engine` (testável com Vitest); conteúdo em `src/data` (novo mundo/fase = só dados).
+
+
+## Fase 2 — decisões
+
+### Modelo de conteúdo
+`Word (lemma)` → `Sense` (significado contextual, id `lemma#slug`) → usado em **frases** via `gloss`. **Desafio** = `Level` (pertence a um mundo/modo). **Histórico** = por *sense*, não por grafia.
+- Mesma palavra em vários contextos tem *senses* distintos (ex.: `ticket#pass` em Travel × `ticket#support-request` em Business; `mystery#unknown` × `mystery#story-genre`).
+- Dominar um *sense* **não** marca os outros como dominados (`Progress.meanings[senseId]`). Palavras secretas continuam sem contar como domínio.
+- Mecânica de secretas e de frases inalterada.
+
+### Dicionário Vivo
+- Toque em qualquer palavra de uma frase (frase concluída, revisão e exemplos dos cartões). Antes de concluir a frase, ligue 📖 *Look up words*, para não conflitar com montar a frase.
+- Cartão: palavra como aparece, forma-base (se diferente), tradução **do contexto**, explicação curta, exemplo, 🔊.
+- Dados: `SentenceChallenge.gloss` = um item por palavra: `lemma#slug` | `-` (sem entrada) | `~` (continua a expressão anterior, ex.: *break a leg*). Registro em `data/senses.ts`; os sentidos das palavras principais vêm de `levels.ts`.
+- **Sem entrada revisada → fallback explícito** ("No reviewed entry yet") + tradução da frase inteira + pronúncia; nada é inventado. Sem IA nem rede.
+- Pontuação e espaços preservados (`tokenizeText`); os índices de palavra coincidem com os do montador de frases.
+
+### Persistência
+`Progress` v2 (`interests`, `onboarded`, `meanings`); a chave `wordquest:v1` foi mantida e o payload carrega `version`. `migrateProgress` (v1→v2): preserva moedas, configurações e fases; converte `words[texto]` em `meanings[senseId]`; infere interesses dos mundos já jogados; entrada inválida → progresso novo.
+
+### Music World — planejado (não integrado)
+- Modelo pronto em `data/types.ts`: `LicenseInfo` (status, titular, referência, validade, permissões por recurso) e `MusicChallenge` (faixa, trechos, licença, notas de linguagem figurada, áudio autorizado). `engine/licensing.ts#canUse` bloqueia `unverified`, exige permissão explícita por recurso (texto/tradução/áudio) e respeita validade.
+- Hoje: só frases originais; um teste garante que todo conteúdo enviado é original/autorizado.
+- **Pendências:** licença de letras (por faixa e território); fonte de tradução **revisada por humano** para trechos licenciados; UI de descoberta de palavras em trechos; interpretação de linguagem figurada (`FigurativeNote` já modelada); player de áudio autorizado; painel de curadoria/licenças. Fora de escopo: scraping, letras comerciais, tradução automática de letras, integrações pagas.
+
+### Conteúdo
+Todas as palavras das 31 frases têm entrada no dicionário; palavras fora do registro caem no fallback. Traduções e exemplos foram escritos à mão e **precisam de revisão humana** antes de uma publicação ampla.

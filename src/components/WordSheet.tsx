@@ -1,5 +1,9 @@
+import { useMemo, useState } from 'react'
 import type { WordInfo } from '../data/types'
-import { Highlight, Sheet, SpeakButton } from './ui'
+import { exampleResolver, type Resolved } from '../engine/dictionary'
+import { DictionaryCard } from './DictionaryCard'
+import { LiveSentence } from './LiveSentence'
+import { Sheet, SpeakButton } from './ui'
 
 interface Props {
   word: WordInfo
@@ -10,7 +14,10 @@ interface Props {
 }
 
 export function WordSheet({ word, kind, reward, cta, onClose }: Props) {
+  const [card, setCard] = useState<{ surface: string; resolved: Resolved } | null>(null)
+  const resolve = useMemo(() => exampleResolver(word.example, word, (word as { senseId?: string }).senseId), [word])
   return (
+    <>
     <Sheet>
       <div className={`word-card ${kind}`}>
         {kind === 'secret' && (
@@ -31,7 +38,7 @@ export function WordSheet({ word, kind, reward, cta, onClose }: Props) {
         <div className="example">
           <span className="ex-label">Example</span>
           <p>
-            <Highlight text={word.example} word={word.text} />
+            <LiveSentence text={word.example} resolve={resolve} onWord={(surface, resolved) => setCard({ surface, resolved })} />
           </p>
           <SpeakButton text={word.example} label="Listen" />
         </div>
@@ -40,5 +47,7 @@ export function WordSheet({ word, kind, reward, cta, onClose }: Props) {
         </button>
       </div>
     </Sheet>
+    {card && <DictionaryCard surface={card.surface} resolved={card.resolved} context={{ text: word.example }} onClose={() => setCard(null)} />}
+    </>
   )
 }

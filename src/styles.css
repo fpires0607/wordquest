@@ -113,6 +113,7 @@ button:disabled { cursor: default; }
   position: absolute; bottom: 10px; right: 12px; background: var(--accent); color: var(--ink);
   font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 99px; box-shadow: 0 2px 0 #0003;
 }
+.world-card.mode { box-shadow: 0 7px 0 #0000004d, inset 0 0 0 2px #ffffff30, inset 0 0 0 4px #9fb4ff40; }
 .footnote { text-align: center; opacity: .6; font-size: 13px; margin-top: 18px; }
 
 /* ── world path ── */
@@ -272,3 +273,36 @@ button:disabled { cursor: default; }
 @keyframes floatup { 0% { transform: translateY(0) scale(.7); opacity: 0; } 20% { opacity: 1; transform: translateY(-10px) scale(1.2); } 100% { transform: translateY(-90px); opacity: 0; } }
 @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+/* ── onboarding ── */
+.onboarding { padding-bottom: 40px; }
+.interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.interest {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 8px; border-radius: 20px;
+  background: linear-gradient(135deg, var(--from), var(--to)); font-size: 15px; opacity: .6;
+  box-shadow: 0 5px 0 #0004, inset 0 0 0 2px #ffffff22; transition: transform .1s, opacity .15s;
+}
+.interest.on { opacity: 1; box-shadow: 0 5px 0 #0004, inset 0 0 0 3px #fff; transform: translateY(-2px); }
+.interest .i-icon { font-size: 34px; }
+.interest .check { position: absolute; top: 6px; right: 8px; background: #fff; color: var(--green-d); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.onboarding-actions { margin: 22px auto 0; }
+
+/* ── live dictionary ── */
+.live-sentence { line-height: 1.7; }
+.lw { background: none; padding: 0 1px; border-radius: 6px; font: inherit; color: inherit; border-bottom: 2px dotted #9aa0c4; }
+.lw.known { border-bottom-color: #5b3fd0; }
+.lw.expr { background: #ffe08a66; border-bottom-style: solid; }
+.lw:active { background: #5b3fd033; }
+.sentence-slots.finished { font-size: 24px; line-height: 1.6; flex-direction: row; display: block; text-align: center; }
+.sentence-slots.finished .lw { color: #fff; border-bottom-color: #ffffffaa; }
+.sentence-slots.finished .lw.known { border-bottom-color: var(--accent); }
+.cloze-full { font-size: 18px; text-align: center; }
+.cloze-full .lw { color: #fff; border-bottom-color: #ffffffaa; }
+.dict-toggle { align-self: center; }
+.dict-toggle.on { background: var(--accent); color: var(--ink); }
+.word-card.dict .lemma { color: #7a7fa3; font-size: 14px; margin-top: -4px; }
+.word-card.dict .no-entry { background: #fff4e0; border-radius: 16px; padding: 12px 14px; text-align: left; }
+.word-card.dict .no-entry p { margin: 6px 0 0; font-size: 15px; }
+.word-card.dict .in-context { font-size: 13px; color: #7a7fa3; }
+.word-card.dict .translation { font-size: 22px; }
+.example .live-sentence .lw { border-bottom-color: #9aa0c4; }

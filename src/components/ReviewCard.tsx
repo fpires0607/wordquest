@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react'
 import type { Level } from '../data/types'
 import { shuffle } from '../engine/letters'
 import { sfx } from '../lib/sfx'
+import { exampleResolver, type Resolved } from '../engine/dictionary'
+import { DictionaryCard } from './DictionaryCard'
+import { LiveSentence } from './LiveSentence'
 import { SpeakButton } from './ui'
 
 interface Props {
@@ -17,6 +20,9 @@ export function ReviewCard({ level, onDone }: Props) {
   const [picked, setPicked] = useState<string | null>(null)
   const [shake, setShake] = useState<string | null>(null)
   const solved = picked === text
+  const [card, setCard] = useState<{ surface: string; resolved: Resolved } | null>(null)
+  const filled = cloze.sentence.replace('___', text)
+  const resolve = useMemo(() => exampleResolver(filled, level.main, level.main.senseId), [filled, level.main])
 
   const pick = (o: string) => {
     if (solved) return
@@ -51,13 +57,17 @@ export function ReviewCard({ level, onDone }: Props) {
       {solved && (
         <div className="result-card">
           <div>
-            <b>{text}</b> = {translation} <SpeakButton text={cloze.sentence.replace('___', text)} />
+            <b>{text}</b> = {translation} <SpeakButton text={filled} />
+          </div>
+          <div className="cloze-full">
+            <LiveSentence text={filled} resolve={resolve} onWord={(surface, resolved) => setCard({ surface, resolved })} />
           </div>
           <button className="btn primary" onClick={() => onDone(tries === 0)}>
             Continue →
           </button>
         </div>
       )}
+      {card && <DictionaryCard surface={card.surface} resolved={card.resolved} context={{ text: filled }} onClose={() => setCard(null)} />}
     </div>
   )
 }

@@ -1,9 +1,10 @@
+import { useState, type CSSProperties } from 'react'
 import { LEVELS } from '../data/levels'
-import { WORLDS } from '../data/worlds'
+import { INTEREST_WORLDS, MODES, levelsOfWorld } from '../data/worlds'
 import type { Difficulty, World } from '../data/types'
 import { actions, levelProgress, useProgress, type Progress } from '../state/store'
+import { Onboarding } from './Onboarding'
 import { CoinBadge, SoundToggle } from './ui'
-import type { CSSProperties } from 'react'
 
 export const DIFF_LABEL: Record<Difficulty, { icon: string; name: string }> = {
   beginner: { icon: '🌱', name: 'Beginner' },
@@ -12,21 +13,59 @@ export const DIFF_LABEL: Record<Difficulty, { icon: string; name: string }> = {
 }
 
 export function worldStats(world: World, p: Progress) {
-  const levels = LEVELS.filter((l) => l.worldId === world.id)
+  const levels = levelsOfWorld(world.id)
   const done = levels.filter((l) => levelProgress(p, l.id).completed).length
   const secrets = levels.reduce((n, l) => n + levelProgress(p, l.id).secrets.length, 0)
   const totalSecrets = levels.reduce((n, l) => n + l.secretWords.length, 0)
   return { total: levels.length, done, secrets, totalSecrets }
 }
 
+function WorldCard({ world, p, badge, onOpen }: { world: World; p: Progress; badge?: string; onOpen(): void }) {
+  const st = worldStats(world, p)
+  return (
+    <button
+      className={`world-card${world.kind === 'mode' ? ' mode' : ''}`}
+      style={{ '--from': world.theme.from, '--to': world.theme.to, '--accent': world.theme.accent } as CSSProperties}
+      onClick={onOpen}
+    >
+      <span className="deco d1">{world.theme.deco[0]}</span>
+      <span className="deco d2">{world.theme.deco[1]}</span>
+      <span className="deco d3">{world.theme.deco[2]}</span>
+      <div className="world-icon">{world.icon}</div>
+      <div className="world-info">
+        <h3>{world.title}</h3>
+        <p>{world.description}</p>
+        <div className="bar">
+          <i style={{ width: `${(st.done / st.total) * 100}%` }} />
+        </div>
+        <small>
+          {st.done}/{st.total} levels · 🗝️ {st.secrets}/{st.totalSecrets}
+        </small>
+      </div>
+      {badge && <span className="badge">{badge}</span>}
+    </button>
+  )
+}
+
 export function Home({ onWorld }: { onWorld(id: string): void }) {
   const p = useProgress()
+  const [editing, setEditing] = useState(false)
+
+  if (!p.onboarded) return <Onboarding onClose={() => {}} />
+  if (editing) return <Onboarding editing onClose={() => setEditing(false)} />
+
+  const mine = INTEREST_WORLDS.filter((w) => p.interests.includes(w.id))
+  const others = INTEREST_WORLDS.filter((w) => !p.interests.includes(w.id))
+
   return (
     <div className="screen home">
       <header className="topbar">
         <div className="logo">
           Word<span>Quest</span>
         </div>
+        <button className="icon-btn" aria-label="Edit interests" onClick={() => setEditing(true)}>
+          ✏️
+        </button>
         <SoundToggle />
         <CoinBadge />
       </header>
@@ -42,38 +81,33 @@ export function Home({ onWorld }: { onWorld(id: string): void }) {
         </div>
       </section>
 
-      <h2 className="section-title">Choose your world</h2>
+      <h2 className="section-title">Your worlds</h2>
       <div className="world-grid">
-        {WORLDS.map((w) => {
-          const st = worldStats(w, p)
-          const fits = LEVELS.some((l) => l.worldId === w.id && l.difficulty === p.playerLevel && !levelProgress(p, l.id).completed)
-          return (
-            <button
-              key={w.id}
-              className="world-card"
-              style={{ '--from': w.theme.from, '--to': w.theme.to, '--accent': w.theme.accent } as CSSProperties}
-              onClick={() => onWorld(w.id)}
-            >
-              <span className="deco d1">{w.theme.deco[0]}</span>
-              <span className="deco d2">{w.theme.deco[1]}</span>
-              <span className="deco d3">{w.theme.deco[2]}</span>
-              <div className="world-icon">{w.icon}</div>
-              <div className="world-info">
-                <h3>{w.title}</h3>
-                <p>{w.description}</p>
-                <div className="bar">
-                  <i style={{ width: `${(st.done / st.total) * 100}%` }} />
-                </div>
-                <small>
-                  {st.done}/{st.total} levels · 🗝️ {st.secrets}/{st.totalSecrets}
-                </small>
-              </div>
-              {fits && <span className="badge">★ For you</span>}
-            </button>
-          )
-        })}
+        {mine.map((w) => (
+          <WorldCard key={w.id} world={w} p={p} badge="★ Interest" onOpen={() => onWorld(w.id)} />
+        ))}
       </div>
-      <p className="footnote">Progress is saved on this device.</p>
+
+      <h2 className="section-title">Special modes</h2>
+      <div className="world-grid">
+        {MODES.map((w) => (
+          <WorldCard key={w.id} world={w} p={p} badge="Special" onOpen={() => onWorld(w.id)} />
+        ))}
+      </div>
+
+      {others.length > 0 && (
+        <>
+          <h2 className="section-title">More worlds</h2>
+          <div className="world-grid">
+            {others.map((w) => (
+              <WorldCard key={w.id} world={w} p={p} onOpen={() => onWorld(w.id)} />
+            ))}
+          </div>
+        </>
+      )}
+      <p className="footnote">
+        {LEVELS.length} levels · progress is saved on this device.
+      </p>
     </div>
   )
 }

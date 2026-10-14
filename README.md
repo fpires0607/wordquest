@@ -9,9 +9,9 @@ npm test        # testes do motor e integridade do conteúdo
 npm run build
 ```
 
-- `src/engine` lógica pura (avaliação Wordle, validação de secretas, frases)
-- `src/data` mundos e fases (novo conteúdo = só dados)
-- `src/state/store.ts` progresso em `localStorage` (`wordquest:v1`)
+- `src/engine` lógica pura (avaliação Wordle, validação de secretas, frases, dicionário vivo, licenças)
+- `src/data` mundos, fases e significados (`senses.ts`); novo conteúdo = só dados. Frases têm `gloss` para o Dicionário Vivo
+- `src/state` progresso em `localStorage` (`wordquest:v1`, payload v2) + `migrate.ts` (migração versionada)
 
 ## PWA (instalável e offline)
 Manifest em `public/manifest.webmanifest`, service worker em `public/sw.js` (ativo só no build de produção), ícones gerados por `node scripts/make-icons.mjs`.

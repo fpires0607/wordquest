@@ -132,7 +132,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
     setSel([])
     setBusy(true)
     sfx('win')
-    const first = actions.completeMain(levelId, main, REWARD_MAIN)
+    const first = actions.completeMain(levelId, level.main.senseId, REWARD_MAIN)
     if (first) {
       setEarned((e) => e + REWARD_MAIN)
       floatCoins(`+${REWARD_MAIN} 🪙`)
@@ -245,8 +245,8 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
     }
     // review a previously learned word (not this level's) in a new context
     const st = getState()
-    const cand = LEVELS.filter((l) => l.id !== levelId && st.words[l.main.text])
-      .sort((a, b) => st.words[a.main.text].reviews - st.words[b.main.text].reviews || st.words[a.main.text].lastSeen - st.words[b.main.text].lastSeen)[0]
+    const cand = LEVELS.filter((l) => l.id !== levelId && st.meanings[l.main.senseId])
+      .sort((a, b) => st.meanings[a.main.senseId].reviews - st.meanings[b.main.senseId].reviews || st.meanings[a.main.senseId].lastSeen - st.meanings[b.main.senseId].lastSeen)[0]
     if (cand) {
       setReviewLevel(cand)
       setStage('review')
@@ -434,7 +434,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
         <ReviewCard
           level={reviewLevel}
           onDone={(firstTry) => {
-            actions.reviewed(reviewLevel.main.text)
+            actions.reviewed(reviewLevel.main.senseId)
             if (firstTry) {
               actions.earn(1)
               setEarned((e) => e + 1)
