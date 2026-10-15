@@ -4,7 +4,7 @@ import { INTEREST_WORLDS, MODES, levelsOfWorld } from '../data/worlds'
 import type { Difficulty, World } from '../data/types'
 import { actions, levelProgress, useProgress, type Progress } from '../state/store'
 import { Onboarding } from './Onboarding'
-import { CoinBadge, SoundToggle } from './ui'
+import { CoinBadge, SoundToggle, StreakChip } from './ui'
 
 export const DIFF_LABEL: Record<Difficulty, { icon: string; name: string }> = {
   beginner: { icon: '🌱', name: 'Beginner' },
@@ -69,6 +69,8 @@ export function Home({ onWorld }: { onWorld(id: string): void }) {
         <SoundToggle />
         <CoinBadge />
       </header>
+
+      <StreakChip big />
 
       <section className="level-pick">
         <p>Your English level</p>

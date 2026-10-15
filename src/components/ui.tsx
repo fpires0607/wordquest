@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { canSpeak, speak } from '../lib/speech'
+import { currentStreak, dayKey } from '../engine/streak'
 import { actions, useProgress } from '../state/store'
 
 export function CoinBadge() {
@@ -70,6 +71,18 @@ export function Confetti() {
           {bits[i % bits.length]}
         </span>
       ))}
+    </div>
+  )
+}
+
+export function StreakChip({ big }: { big?: boolean }) {
+  const p = useProgress()
+  const { count, doneToday } = currentStreak(p.streak, dayKey())
+  return (
+    <div className={`streak${doneToday ? ' lit' : ''}${big ? ' big' : ''}`} title={doneToday ? 'Streak kept for today!' : count ? 'Play today to keep your streak' : 'Play today to start a streak'}>
+      <span className="flame">🔥</span>
+      <b>{count}</b>
+      {big && <small>{count === 1 ? 'day' : 'days'} in a row{!doneToday && count > 0 ? ' · play today to keep it!' : ''}{count === 0 ? ' · start today!' : ''}</small>}
     </div>
   )
 }

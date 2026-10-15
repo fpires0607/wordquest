@@ -44,12 +44,22 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 - Estrutura: `World { kind: 'interest' | 'mode', levelIds, theme, categories }`; `Level.worldId`. Novo mundo/fase = só dados.
 - **Ids de fase são estáveis** (o progresso usa o id), mesmo quando a fase muda de mundo.
 
+## Tela de palavras secretas (Fase 2.1)
+- Botão **Secret words x/y** abre a tela com uma fileira de caixas por palavra escondida (só o **tamanho** aparece), agrupadas por tamanho; a ordem da lista curada não é exposta. Achadas preenchem em verde e abrem o cartão ao toque. Roda e GO ficam na mesma tela; nas fases concluídas ela é a tela padrão.
+- Na tela de secretas, um palpite com o tamanho da palavra principal que não é secreta conta como tentativa da principal (aviso na tela); acertar a principal volta para a visão principal.
+- **Pista progressiva:** cada clique revela **mais uma letra, da esquerda para a direita, da mesma palavra**, até faltar só a última (o jogador sempre precisa completar). Só cobra quando revela; sem moedas ou sem nada a revelar, não cobra. As letras reveladas ficam salvas (`LevelProgress.clues`). Escolha da palavra: continua a mais avançada; senão começa pela mais curta.
+
+## Sequência de dias 🔥 (Fase 2.1)
+- Conta o dia como ativo ao **progredir de verdade** (achar secreta, resolver principal, concluir frase ou revisão), não só por abrir o app. Dia local (`YYYY-MM-DD`).
+- Dia seguinte +1; dia pulado reinicia em 1 (guarda o melhor). A sequência continua viva até o fim do dia seguinte ao último; chama colorida = hoje já ativo, cinza = jogue hoje para manter.
+- Persistido em `Progress.streak` (campo aditivo; saves sem ele recebem o padrão). Sem congelamento nem recompensa em moedas por enquanto.
+
 ## Fluxo de uma fase
 `Palavra principal` → `Cartão da palavra` (tradução, explicação, exemplo, 🔊) → `Frase` (ordenar) → `Revisão rápida` (cloze com palavra já aprendida, se houver) → `Celebração`. Palavras secretas podem ser achadas a qualquer momento e depois, na revisita.
 
 ## Economia (sem dinheiro real)
-- Ganha: palavra principal +5 (1ª vez), frase +3 (1ª vez), revisão +1, secreta +1 (1ª vez).
-- Gasta: dica de letra 3, dica de significado 1, pista de secreta 2.
+- Ganha: palavra principal +3 (1ª vez), frase +1 (1ª vez), revisão +1 (acerto de primeira), secreta +1 (1ª vez). Começa com 3 moedas. *(Reduzido na Fase 2.1: ganhar estava fácil demais.)*
+- Gasta: dica de letra 3, dica de significado 1, pista de secreta 2 **por letra revelada**.
 
 ## Fora de escopo agora
 Backend, contas, 3D/animações complexas, anúncios/compras, conquistas, ranking, conteúdo de letras comerciais.
@@ -84,3 +94,9 @@ Lógica de jogo pura em `src/engine` (testável com Vitest); conteúdo em `src/d
 
 ### Conteúdo
 Todas as palavras das 31 frases têm entrada no dicionário; palavras fora do registro caem no fallback. Traduções e exemplos foram escritos à mão e **precisam de revisão humana** antes de uma publicação ampla.
+
+## Backlog
+- **Conquistas / insígnias** (estilo conquistas do Xbox): por mundo, por palavras secretas, por sequência de dias, por domínio de significados; tela de coleção. A sequência de dias e o histórico por *sense* já fornecem os dados.
+- Melhorias da sequência: congelamento (usar moedas), marcos (7/30 dias), lembrete.
+- Revisão humana do conteúdo (traduções, exemplos, dicionário).
+- Music World licenciado (ver pendências acima).

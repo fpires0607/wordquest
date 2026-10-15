@@ -1,12 +1,15 @@
 import { LEVELS } from '../data/levels'
 import type { Difficulty } from '../data/types'
 import { INTEREST_WORLDS } from '../data/worlds'
+import { emptyStreak, type Streak } from '../engine/streak'
 
 export interface LevelProgress {
   completed: boolean
   sentenceDone: boolean
   secrets: string[] // secret words already discovered (and rewarded)
   plays: number
+  /** letters revealed by paid secret clues, per word (optional: older saves lack it) */
+  clues?: Record<string, number>
 }
 /** Learning history per SENSE (contextual meaning), main words only. Secrets never count as mastery. */
 export interface MeaningProgress {
@@ -22,18 +25,20 @@ export interface Progress {
   interests: string[] // world ids (kind 'interest'); independent from playerLevel
   levels: Record<string, LevelProgress>
   meanings: Record<string, MeaningProgress>
+  streak: Streak // days in a row with activity (additive field: older v2 saves get the default)
 }
 
 export const CURRENT_VERSION = 2
 export const freshProgress = (): Progress => ({
   version: 2,
-  coins: 5,
+  coins: 3,
   playerLevel: 'beginner',
   sound: true,
   onboarded: false,
   interests: [],
   levels: {},
   meanings: {},
+  streak: emptyStreak(),
 })
 
 const isObj = (v: unknown): v is Record<string, any> => typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -43,6 +48,14 @@ export function sanitizeInterests(ids: unknown): string[] {
   if (!Array.isArray(ids)) return []
   const ok = validIds()
   return [...new Set(ids.filter((x): x is string => typeof x === 'string' && ok.has(x)))]
+}
+
+function sanitizeStreak(s: unknown): Streak {
+  if (!isObj(s)) return emptyStreak()
+  const count = Number.isInteger(s.count) && s.count >= 0 ? s.count : 0
+  const best = Number.isInteger(s.best) && s.best >= count ? s.best : count
+  const lastDay = typeof s.lastDay === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.lastDay) ? s.lastDay : null
+  return lastDay ? { count, best, lastDay } : emptyStreak()
 }
 
 /**
@@ -78,5 +91,6 @@ export function migrateProgress(raw: unknown): Progress {
     interests: sanitizeInterests(p.interests),
     levels: isObj(p.levels) ? p.levels : {},
     meanings: isObj(p.meanings) ? p.meanings : {},
+    streak: sanitizeStreak(p.streak),
   }
 }

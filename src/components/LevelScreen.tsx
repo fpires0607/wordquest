@@ -6,11 +6,13 @@ import { evaluateGuess, type TileState } from '../engine/evaluate'
 import { makeWheel } from '../engine/letters'
 import { validateSecretWord } from '../engine/secrets'
 import { pickVariant } from '../engine/sentences'
+import { nextClue } from '../engine/clues'
 import { sfx } from '../lib/sfx'
 import { actions, getState, levelProgress, useProgress } from '../state/store'
 import { ReviewCard } from './ReviewCard'
+import { SecretGrid } from './SecretGrid'
 import { SentenceBuilder } from './SentenceBuilder'
-import { CoinBadge, Confetti, SoundToggle } from './ui'
+import { CoinBadge, Confetti, SoundToggle, StreakChip } from './ui'
 import { Wheel } from './Wheel'
 import { WordSheet } from './WordSheet'
 
@@ -27,8 +29,9 @@ interface SheetState {
   after?: () => void
 }
 
-const REWARD_MAIN = 5
-const REWARD_SENTENCE = 3
+// Economy: kept deliberately tight so hints matter. Secret words stay at +1 each.
+const REWARD_MAIN = 3
+const REWARD_SENTENCE = 1
 const COST = { letter: 3, meaning: 1, clue: 2 }
 
 interface Props {
@@ -52,7 +55,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
   const [rows, setRows] = useState<Row[]>([])
   const [hinted, setHinted] = useState<Record<number, string>>({})
   const [meaningShown, setMeaningShown] = useState(false)
-  const [clue, setClue] = useState<string | null>(null)
+  const [view, setView] = useState<'main' | 'secrets'>(lp.completed ? 'secrets' : 'main')
   const [toast, setToast] = useState<string | null>(null)
   const [shake, setShake] = useState(0)
   const [busy, setBusy] = useState(false)
@@ -130,6 +133,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
   const solveMain = () => {
     setRows((r) => [...r, { letters: main, states: Array(main.length).fill('correct') }])
     setSel([])
+    setView('main')
     setBusy(true)
     sfx('win')
     const first = actions.completeMain(levelId, level.main.senseId, REWARD_MAIN)
@@ -170,7 +174,6 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
         sfx('secret')
         setEarned((e) => e + 1)
         floatCoins('+1 🪙')
-        setClue(null)
       }
       setSel([])
       setSheet({ word: r.word, kind: 'secret', reward: 1, cta: 'Nice!' })
@@ -185,6 +188,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
       sfx('flip')
       setRows((rs) => [...rs, { letters: guess, states: evaluateGuess(guess, main) }])
       setSel([])
+      if (view === 'secrets') flash('Not a hidden word — counted as a try for the main word')
       return
     }
     setSel([])
@@ -223,12 +227,11 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
     setMeaningShown(true)
     sfx('coin')
   }
+  // Progressive clue: reveals one more letter of the same word each time; never charges when nothing can be revealed.
   const hintClue = () => {
-    const pending = level.secretWords.filter((s) => !lp.secrets.includes(s.text))
-    if (!pending.length) return flash('You found all the secrets! 🏆')
-    if (!actions.spend(COST.clue)) return flash('Not enough coins 🪙', true)
-    const s = pending[Math.floor(Math.random() * pending.length)].text
-    setClue(s[0].toUpperCase() + ' ' + Array(s.length - 1).fill('_').join(' '))
+    const target = nextClue(level.secretWords.map((w) => w.text), lp.secrets, lp.clues ?? {})
+    if (!target) return flash(secretsLeft === 0 ? 'You found all the secrets! 🏆' : 'Every hidden word already shows all but its last letter')
+    if (actions.buyClue(levelId, target, COST.clue) === null) return flash('Not enough coins 🪙', true)
     sfx('coin')
   }
 
@@ -259,6 +262,8 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
   const sentence = pickVariant(level.sentences, (playIndex.current ?? 0) + sentenceRound)
   const slotCount = Math.max(main.length, sel.length)
   const showBoard = stage === 'word' || stage === 'explore'
+  const secretsView = stage === 'explore' || view === 'secrets'
+  const clueAvailable = nextClue(level.secretWords.map((w) => w.text), lp.secrets, lp.clues ?? {}) !== null
   const themeStyle = {
     '--from': world.theme.from,
     '--to': world.theme.to,
@@ -278,6 +283,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
           <b>Level · {level.category}</b>
         </div>
         <SoundToggle />
+        <StreakChip />
         <CoinBadge />
       </header>
 
@@ -292,65 +298,63 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
 
       {showBoard && (
         <div className="stage board">
-          {/* secret words panel */}
-          <div className="secret-panel">
-            <div className="secret-head">
-              <span>
-                🗝️ Secret words <b>{lp.secrets.length}</b>/{level.secretWords.length}
-              </span>
-              {stage === 'word' && <small>optional · +1 🪙 each</small>}
-            </div>
-            <div className="secret-chips">
-              {level.secretWords
-                .filter((s) => lp.secrets.includes(s.text))
-                .map((s) => (
-                  <button key={s.text} className="secret-chip found" onClick={() => setSheet({ word: s, kind: 'known', cta: 'Got it' })}>
-                    {s.text}
+          {secretsView ? (
+            <>
+              <div className="secrets-head">
+                <h3>
+                  🗝️ Secret words <b>{lp.secrets.length}</b>/{level.secretWords.length}
+                </h3>
+                {stage === 'word' && (
+                  <button className="hint-btn" onClick={() => setView('main')}>
+                    ← Main word
                   </button>
-                ))}
-              {Array.from({ length: secretsLeft }, (_, i) => (
-                <span key={i} className="secret-chip locked">
-                  🔒
-                </span>
-              ))}
-            </div>
-            {clue && <div className="clue">🔍 Clue: {clue}</div>}
-          </div>
-
-          {/* mission */}
-          <div className="mission">
-            {stage === 'word' ? (
-              <>
-                Find the <b>{main.length}-letter</b> word
-                {meaningShown && (
-                  <span className="meaning-pill">
-                    {' '}
-                    · “{level.main.translation}”
-                  </span>
                 )}
-              </>
-            ) : (
-              <>
-                <b>{main.toUpperCase()}</b> solved ✔ — hunt the hidden words!
-              </>
-            )}
-          </div>
+              </div>
+              <SecretGrid
+                words={level.secretWords}
+                found={lp.secrets}
+                clues={lp.clues ?? {}}
+                onOpen={(w) => setSheet({ word: w, kind: 'known', cta: 'Got it' })}
+              />
+              <div className="mission">
+                {stage === 'word' ? 'Optional · +1 🪙 for each new word' : (
+                  <>
+                    <b>{main.toUpperCase()}</b> solved ✔ — {secretsLeft ? 'find the hidden words!' : 'all secrets found! 🏆'}
+                  </>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <button className="secret-link" onClick={() => setView('secrets')}>
+                <span>
+                  🗝️ Secret words <b>{lp.secrets.length}</b>/{level.secretWords.length}
+                </span>
+                <small>see the blanks →</small>
+              </button>
 
-          {/* guess history (Wordle-style feedback) */}
-          <div className="history">
-            {rows.slice(-3).map((r, ri, arr) => (
-              <div className="tile-row" key={rows.length - arr.length + ri} style={{ "--n": r.letters.length } as React.CSSProperties}>
-                {r.letters.split('').map((ch, i) => (
-                  <div key={i} className={`tile ${r.states[i]}`} style={{ animationDelay: `${i * 110}ms` }}>
-                    {ch.toUpperCase()}
+              <div className="mission">
+                Find the <b>{main.length}-letter</b> word
+                {meaningShown && <span className="meaning-pill"> · “{level.main.translation}”</span>}
+              </div>
+
+              {/* guess history (Wordle-style feedback) */}
+              <div className="history">
+                {rows.slice(-3).map((r, ri, arr) => (
+                  <div className="tile-row" key={rows.length - arr.length + ri} style={{ '--n': r.letters.length } as React.CSSProperties}>
+                    {r.letters.split('').map((ch, i) => (
+                      <div key={i} className={`tile ${r.states[i]}`} style={{ animationDelay: `${i * 110}ms` }}>
+                        {ch.toUpperCase()}
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
 
           {/* pattern + current word */}
-          {stage === 'word' && (
+          {stage === 'word' && !secretsView && (
             <div className="pattern">
               {pattern.map((c, i) => (
                 <span key={i} className={c ? 'on' : ''}>
@@ -385,40 +389,42 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
             </button>
           </div>
 
-          {stage === 'word' ? (
-            <div className="hints">
-              <button className="hint-btn" onClick={hintLetter}>
-                💡 Letter <i>{COST.letter}🪙</i>
-              </button>
-              <button className="hint-btn" onClick={hintMeaning} disabled={meaningShown}>
-                🌐 Meaning <i>{COST.meaning}🪙</i>
-              </button>
-              <button className="hint-btn" onClick={hintClue}>
-                🔍 Secret clue <i>{COST.clue}🪙</i>
-              </button>
-            </div>
-          ) : (
-            <div className="hints">
-              <button className="hint-btn" onClick={hintClue}>
-                🔍 Secret clue <i>{COST.clue}🪙</i>
-              </button>
-              <button
-                className="hint-btn"
-                onClick={() => {
-                  setSentenceRound((n) => n + 1)
-                  setPractice(true)
-                  setStage('sentence')
-                }}
-              >
-                ✍️ New sentence
-              </button>
-              {nextLevelId && (
-                <button className="hint-btn" onClick={() => onNext(nextLevelId)}>
-                  ⏭ Next level
+          <div className="hints">
+            {stage === 'word' && !secretsView && (
+              <>
+                <button className="hint-btn" onClick={hintLetter}>
+                  💡 Letter <i>{COST.letter}🪙</i>
                 </button>
-              )}
-            </div>
-          )}
+                <button className="hint-btn" onClick={hintMeaning} disabled={meaningShown}>
+                  🌐 Meaning <i>{COST.meaning}🪙</i>
+                </button>
+              </>
+            )}
+            {secretsView && secretsLeft > 0 && (
+              <button className="hint-btn" onClick={hintClue} disabled={!clueAvailable}>
+                🔍 Reveal a letter <i>{COST.clue}🪙</i>
+              </button>
+            )}
+            {stage === 'explore' && (
+              <>
+                <button
+                  className="hint-btn"
+                  onClick={() => {
+                    setSentenceRound((n) => n + 1)
+                    setPractice(true)
+                    setStage('sentence')
+                  }}
+                >
+                  ✍️ New sentence
+                </button>
+                {nextLevelId && (
+                  <button className="hint-btn" onClick={() => onNext(nextLevelId)}>
+                    ⏭ Next level
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       )}
 

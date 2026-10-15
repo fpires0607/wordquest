@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { Difficulty } from '../data/types'
+import { bumpStreak, dayKey } from '../engine/streak'
 import { freshProgress, migrateProgress, sanitizeInterests, type LevelProgress, type Progress } from './migrate'
 
 export type { LevelProgress, Progress, MeaningProgress } from './migrate'
@@ -43,6 +44,12 @@ function patchLevel(id: string, fn: (l: LevelProgress) => LevelProgress, coins =
   commit({ ...state, coins: state.coins + coins, levels: { ...state.levels, [id]: fn(levelProgress(state, id)) } })
 }
 
+/** Counts today as an active day. Called only from real progress (solving, finding, finishing), not from just opening the app. */
+function markActive() {
+  const streak = bumpStreak(state.streak, dayKey())
+  if (streak !== state.streak) commit({ ...state, streak })
+}
+
 export const actions = {
   startPlay: (id: string) => patchLevel(id, (l) => ({ ...l, plays: l.plays + 1 })),
   /** Returns true only on the first completion (reward granted once). Mastery is recorded for that level's sense only. */
@@ -51,18 +58,32 @@ export const actions = {
     if (l.completed) return false
     patchLevel(id, (x) => ({ ...x, completed: true }), reward)
     commit({ ...state, meanings: { ...state.meanings, [senseId]: state.meanings[senseId] ?? { reviews: 0, lastSeen: Date.now() } } })
+    markActive()
     return true
   },
   completeSentence(id: string, reward: number) {
     if (levelProgress(state, id).sentenceDone) return false
     patchLevel(id, (x) => ({ ...x, sentenceDone: true }), reward)
+    markActive()
     return true
   },
   /** +1 coin per never-found secret; duplicates are ignored here too (defence in depth). */
   addSecret(id: string, word: string) {
     if (levelProgress(state, id).secrets.includes(word)) return false
     patchLevel(id, (x) => ({ ...x, secrets: [...x.secrets, word] }), 1)
+    markActive()
     return true
+  },
+  /**
+   * Buys one more revealed letter for `word`. Charges only when it succeeds, so a failed or
+   * impossible clue never costs coins. Returns the new revealed count, or null.
+   */
+  buyClue(id: string, word: string, cost: number): number | null {
+    if (state.coins < cost) return null
+    const lp = levelProgress(state, id)
+    const next = (lp.clues?.[word] ?? 0) + 1
+    patchLevel(id, (x) => ({ ...x, clues: { ...x.clues, [word]: next } }), -cost)
+    return next
   },
   spend(cost: number) {
     if (state.coins < cost) return false
@@ -73,6 +94,7 @@ export const actions = {
   reviewed(senseId: string) {
     const prev = state.meanings[senseId] ?? { reviews: 0, lastSeen: 0 }
     commit({ ...state, meanings: { ...state.meanings, [senseId]: { reviews: prev.reviews + 1, lastSeen: Date.now() } } })
+    markActive()
   },
   setPlayerLevel: (playerLevel: Difficulty) => commit({ ...state, playerLevel }),
   /** Replaces the player's interests (unknown ids dropped). Level progress is never touched. */
