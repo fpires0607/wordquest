@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { levelsOfWorld, worldById } from '../data/worlds'
+import { starsFor } from '../engine/stars'
 import { levelProgress, useProgress } from '../state/store'
 import { DIFF_LABEL } from './Home'
 import { CoinBadge, SoundToggle } from './ui'
@@ -27,12 +28,20 @@ export function WorldScreen({ worldId, onBack, onLevel }: { worldId: string; onB
       <div className="path">
         {levels.map((l, i) => {
           const lp = levelProgress(p, l.id)
+          const stars = starsFor(l.secretWords.length, lp)
           const rec = l.difficulty === p.playerLevel
           return (
             <button key={l.id} className={`node ${i % 2 ? 'right' : 'left'}${lp.completed ? ' done' : ''}${rec ? ' rec' : ''}`} onClick={() => onLevel(l.id)}>
               <span className="node-circle">{lp.completed ? '✔' : i + 1}</span>
               <span className="node-info">
                 <b>{lp.completed ? l.main.text.toUpperCase() : `${l.main.text.length}-letter word`}</b>
+                <span className="node-stars" aria-label={`${stars} of 3 stars`}>
+                  {[1, 2, 3].map((n) => (
+                    <i key={n} className={stars >= n ? 'on' : ''}>
+                      ★
+                    </i>
+                  ))}
+                </span>
                 <small>
                   {DIFF_LABEL[l.difficulty].icon} {DIFF_LABEL[l.difficulty].name} · {l.category}
                 </small>

@@ -67,6 +67,13 @@ export const actions = {
     markActive()
     return true
   },
+  /** Mini challenge (listen / match). Pays once per level; always counts as activity for the streak. */
+  completeChallenge(id: string, reward: number) {
+    const first = !levelProgress(state, id).challengeDone
+    if (first) patchLevel(id, (x) => ({ ...x, challengeDone: true }), reward)
+    markActive()
+    return first
+  },
   /** +1 coin per never-found secret; duplicates are ignored here too (defence in depth). */
   addSecret(id: string, word: string) {
     if (levelProgress(state, id).secrets.includes(word)) return false

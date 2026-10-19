@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from 'react'
 import { LEVELS } from '../data/levels'
 import { INTEREST_WORLDS, MODES, levelsOfWorld } from '../data/worlds'
 import type { Difficulty, World } from '../data/types'
+import { starsFor } from '../engine/stars'
 import { actions, levelProgress, useProgress, type Progress } from '../state/store'
 import { Onboarding } from './Onboarding'
 import { CoinBadge, SoundToggle, StreakChip } from './ui'
@@ -17,7 +18,8 @@ export function worldStats(world: World, p: Progress) {
   const done = levels.filter((l) => levelProgress(p, l.id).completed).length
   const secrets = levels.reduce((n, l) => n + levelProgress(p, l.id).secrets.length, 0)
   const totalSecrets = levels.reduce((n, l) => n + l.secretWords.length, 0)
-  return { total: levels.length, done, secrets, totalSecrets }
+  const stars = levels.reduce((n, l) => n + starsFor(l.secretWords.length, levelProgress(p, l.id)), 0)
+  return { total: levels.length, done, secrets, totalSecrets, stars, totalStars: levels.length * 3 }
 }
 
 function WorldCard({ world, p, badge, onOpen }: { world: World; p: Progress; badge?: string; onOpen(): void }) {
@@ -39,7 +41,7 @@ function WorldCard({ world, p, badge, onOpen }: { world: World; p: Progress; bad
           <i style={{ width: `${(st.done / st.total) * 100}%` }} />
         </div>
         <small>
-          {st.done}/{st.total} levels · 🗝️ {st.secrets}/{st.totalSecrets}
+          {st.done}/{st.total} levels · ⭐ {st.stars}/{st.totalStars} · 🗝️ {st.secrets}/{st.totalSecrets}
         </small>
       </div>
       {badge && <span className="badge">{badge}</span>}

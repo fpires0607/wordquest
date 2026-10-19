@@ -61,7 +61,17 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 - Persistido em `Progress.streak` (campo aditivo; saves sem ele recebem o padrão). Sem congelamento nem recompensa em moedas por enquanto.
 
 ## Fluxo de uma fase
-`Palavra principal` → `Cartão da palavra` (tradução, explicação, exemplo, 🔊) → `Frase` (ordenar) → `Revisão rápida` (cloze com palavra já aprendida, se houver) → `Celebração`. Palavras secretas podem ser achadas a qualquer momento e depois, na revisita.
+`Palavra principal` → `Cartão da palavra` (tradução, explicação, exemplo, 🔊) → `Frase` (ordenar) → **uma atividade extra que alterna** (`Flashback` de palavra já aprendida, `Ouvir e escolher` ou `Ligar pares`) → `Celebração` com estrelas. Palavras secretas podem ser achadas a qualquer momento e depois, na revisita. Na tela de fase concluída há 🎯 **Challenge** e ✍️ **New sentence** para praticar de novo (sem recompensa extra).
+
+## Profundidade das fases (Fase 3.1)
+- **Estrelas (1–3), derivadas do progresso (nada novo salvo, vale para saves antigos):** ★1 palavra principal; ★2 + frase concluída + pelo menos **metade** das secretas; ★3 + **todas** as secretas. A tela final diz o que falta para a próxima estrela; o mapa do mundo e a Home mostram as estrelas.
+- **Desafios extras (`engine/challenges.ts`), gerados dos dados já revisados, sem conteúdo novo:**
+  - *Ouvir e escolher*: ouve a palavra (🔊) e escolhe o significado entre 3; até 3 perguntas.
+  - *Ligar pares*: 3–4 pares inglês↔português; precisa de pelo menos 3 palavras conhecidas.
+  - Usam **só palavras que o jogador já conhece** (palavra da fase, secretas **já achadas**, palavras principais aprendidas em outras fases): nunca revelam secretas escondidas.
+  - Alternância: a atividade extra de cada fase gira entre as disponíveis (pelo nº de fases concluídas) para não repetir o mesmo exercício.
+  - Recompensa: +1 moeda **uma vez por fase**; sempre conta para a sequência de dias. Acertar secretas em exercícios não vira domínio de vocabulário.
+- **Backlog de profundidade:** fase chefe por mundo (liberada por estrelas), diálogos com lacunas (Movies/Business), caderno de palavras aprendidas com revisão, palavras bônus, conquistas.
 
 ## Economia (sem dinheiro real)
 - Ganha: palavra principal +3 (1ª vez), frase +1 (1ª vez), revisão +1 (acerto de primeira), secreta +1 (1ª vez). Começa com 3 moedas. *(Reduzido na Fase 2.1: ganhar estava fácil demais.)*

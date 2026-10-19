@@ -341,3 +341,24 @@ button:disabled { cursor: default; }
 .sg-boxes { display: inline-flex; gap: 4px; }
 .sg-word.open:active { transform: translateY(2px); }
 .sg-caption { font-size: 13px; color: var(--accent); font-weight: 600; max-width: 140px; text-align: center; line-height: 1.1; }
+
+/* ── stars ── */
+.stars-row { display: flex; gap: 6px; font-size: 54px; line-height: 1; margin: 2px 0 4px; }
+.star { color: #ffffff30; text-shadow: 0 4px 0 #0003; }
+.star.on { color: #ffd54f; animation: pop .5s both; }
+.node-stars { display: inline-flex; gap: 1px; font-size: 16px; line-height: 1; }
+.node-stars i { font-style: normal; color: #ffffff3a; }
+.node-stars i.on { color: #ffd54f; }
+/* ── mini challenges ── */
+.challenge-stage { padding-top: 6px; }
+.dots { display: flex; gap: 8px; }
+.dots i { width: 12px; height: 12px; border-radius: 50%; background: #ffffff33; }
+.dots i.now { background: var(--accent); transform: scale(1.2); }
+.dots i.done { background: var(--green); }
+.listen-big { width: 120px; height: 120px; border-radius: 50%; font-size: 52px; background: #3b82f6; box-shadow: 0 8px 0 #1e56b8; margin: 6px 0 10px; }
+.listen-big:active { transform: translateY(5px); box-shadow: 0 3px 0 #1e56b8; }
+.match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.match-col { display: flex; flex-direction: column; gap: 10px; }
+.match-col .btn.option { font-size: 17px; padding: 12px 8px; }
+.btn.option.sel { outline: 4px solid var(--accent); outline-offset: 2px; }
+.btn.option:disabled { opacity: 1; }

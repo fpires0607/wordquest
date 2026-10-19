@@ -12,6 +12,8 @@ export interface LevelProgress {
   clues?: Record<string, number>
   /** hidden words whose translation was bought (optional: older saves lack it) */
   peeks?: string[]
+  /** mini challenge finished at least once (reward is paid once; optional for older saves) */
+  challengeDone?: boolean
 }
 /** Learning history per SENSE (contextual meaning), main words only. Secrets never count as mastery. */
 export interface MeaningProgress {

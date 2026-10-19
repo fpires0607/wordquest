@@ -7,6 +7,9 @@ import { makeWheel } from '../engine/letters'
 import { validateSecretWord } from '../engine/secrets'
 import { pickVariant } from '../engine/sentences'
 import { FREE_LETTERS, nextClue } from '../engine/clues'
+import { availableChallenges, buildListen, buildMatch, type ChallengeKind, type ListenQuestion, type Pair } from '../engine/challenges'
+import { nextStarGoal, starsFor } from '../engine/stars'
+import { ListenChallenge, MatchChallenge } from './MiniChallenge'
 import { sfx } from '../lib/sfx'
 import { actions, getState, levelProgress, useProgress } from '../state/store'
 import { ReviewCard } from './ReviewCard'
@@ -16,7 +19,7 @@ import { CoinBadge, Confetti, Sheet, SoundToggle, StreakChip } from './ui'
 import { Wheel } from './Wheel'
 import { WordSheet } from './WordSheet'
 
-type Stage = 'word' | 'learn' | 'sentence' | 'review' | 'done' | 'explore'
+type Stage = 'word' | 'learn' | 'sentence' | 'review' | 'challenge' | 'done' | 'explore'
 interface Row {
   letters: string
   states: TileState[]
@@ -32,6 +35,7 @@ interface SheetState {
 // Economy: kept deliberately tight so hints matter. Secret words stay at +1 each.
 const REWARD_MAIN = 3
 const REWARD_SENTENCE = 1
+const REWARD_CHALLENGE = 1 // once per level
 const COST = { letter: 3, meaning: 1, clue: 2, peek: 1 }
 
 interface Props {
@@ -65,6 +69,8 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
   const [sentenceRound, setSentenceRound] = useState(0)
   const [reviewLevel, setReviewLevel] = useState<typeof level | null>(null)
   const [earned, setEarned] = useState(0)
+  const [challenge, setChallenge] = useState<{ kind: ChallengeKind; listen: ListenQuestion[]; match: Pair[] | null } | null>(null)
+  const [challengeRound, setChallengeRound] = useState(0)
   const playIndex = useRef<number | null>(null)
   const toastTimer = useRef<number | undefined>(undefined)
   const [practice, setPractice] = useState(false)
@@ -247,19 +253,48 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
       setPractice(false)
       return setStage('explore')
     }
-    // review a previously learned word (not this level's) in a new context
+    // One extra activity per level, rotating so consecutive levels don't repeat the same exercise:
+    // flashback (a known word in a new sentence), listen & choose, or match pairs.
     const st = getState()
-    const cand = LEVELS.filter((l) => l.id !== levelId && st.meanings[l.main.senseId])
-      .sort((a, b) => st.meanings[a.main.senseId].reviews - st.meanings[b.main.senseId].reviews || st.meanings[a.main.senseId].lastSeen - st.meanings[b.main.senseId].lastSeen)[0]
-    if (cand) {
+    const learned = LEVELS.filter((l) => l.id !== levelId && st.meanings[l.main.senseId])
+    const cand = [...learned].sort(
+      (a, b) => st.meanings[a.main.senseId].reviews - st.meanings[b.main.senseId].reviews || st.meanings[a.main.senseId].lastSeen - st.meanings[b.main.senseId].lastSeen,
+    )[0]
+    const kinds: Array<'review' | ChallengeKind> = [...(cand ? (['review'] as const) : []), ...availableChallenges(level, levelProgress(st, levelId).secrets, learned)]
+    const doneLevels = LEVELS.filter((l) => levelProgress(st, l.id).completed).length
+    const pickKind = kinds[doneLevels % kinds.length]
+    if (pickKind === 'review' && cand) {
       setReviewLevel(cand)
       setStage('review')
     } else {
-      setStage('done')
+      startChallenge(pickKind === 'review' ? 'listen' : pickKind)
     }
   }
 
+  /** Builds a mini challenge only from words the player already knows (never reveals hidden words). */
+  const startChallenge = (kind: ChallengeKind) => {
+    const st = getState()
+    const found = levelProgress(st, levelId).secrets
+    const learned = LEVELS.filter((l) => l.id !== levelId && st.meanings[l.main.senseId])
+    setChallenge({ kind, listen: buildListen(level, found, learned, LEVELS), match: buildMatch(level, found, learned) })
+    setStage('challenge')
+  }
+  const finishChallenge = () => {
+    if (actions.completeChallenge(levelId, REWARD_CHALLENGE)) {
+      setEarned((e) => e + REWARD_CHALLENGE)
+      floatCoins(`+${REWARD_CHALLENGE} 🪙`)
+    }
+    setChallenge(null)
+    if (practice) {
+      setPractice(false)
+      return setStage('explore')
+    }
+    setStage('done')
+  }
+
   const secretsLeft = level.secretWords.length - lp.secrets.length
+  const stars = starsFor(level.secretWords.length, lp)
+  const starGoal = nextStarGoal(level.secretWords.length, lp)
   const sentence = pickVariant(level.sentences, (playIndex.current ?? 0) + sentenceRound)
   const slotCount = Math.max(main.length, sel.length)
   const showBoard = stage === 'word' || stage === 'explore'
@@ -426,6 +461,17 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
                 >
                   ✍️ New sentence
                 </button>
+                <button
+                  className="hint-btn"
+                  onClick={() => {
+                    const kinds = availableChallenges(level, lp.secrets, LEVELS.filter((l) => l.id !== levelId && getState().meanings[l.main.senseId]))
+                    setChallengeRound((n) => n + 1)
+                    setPractice(true)
+                    startChallenge(kinds[challengeRound % kinds.length])
+                  }}
+                >
+                  🎯 Challenge
+                </button>
                 {nextLevelId && (
                   <button className="hint-btn" onClick={() => onNext(nextLevelId)}>
                     ⏭ Next level
@@ -460,11 +506,25 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
         />
       )}
 
+      {stage === 'challenge' && challenge && challenge.kind === 'listen' && (
+        <ListenChallenge key={`l-${challengeRound}`} questions={challenge.listen} onDone={finishChallenge} />
+      )}
+      {stage === 'challenge' && challenge && challenge.kind === 'match' && challenge.match && (
+        <MatchChallenge key={`m-${challengeRound}`} pairs={challenge.match} onDone={finishChallenge} />
+      )}
+
       {stage === 'done' && (
         <div className="stage done-stage">
           <Confetti />
           <div className="trophy">🏆</div>
           <h2>Level complete!</h2>
+          <div className="stars-row" aria-label={`${stars} of 3 stars`}>
+            {[1, 2, 3].map((n) => (
+              <span key={n} className={`star${stars >= n ? ' on' : ''}`} style={{ animationDelay: `${n * 0.25}s` }}>
+                ★
+              </span>
+            ))}
+          </div>
           <div className="summary">
             <div>
               <b>{main.toUpperCase()}</b>
@@ -481,7 +541,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
               <small>coins this run</small>
             </div>
           </div>
-          {secretsLeft > 0 && <p className="soft">Still {secretsLeft} hidden word{secretsLeft > 1 ? 's' : ''} waiting for you…</p>}
+          {starGoal && <p className="soft">{starGoal}</p>}
           <div className="stack">
             {nextLevelId && (
               <button className="btn primary" onClick={() => onNext(nextLevelId)}>
