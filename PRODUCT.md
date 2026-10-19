@@ -49,6 +49,12 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 - Na tela de secretas, um palpite com o tamanho da palavra principal que não é secreta conta como tentativa da principal (aviso na tela); acertar a principal volta para a visão principal.
 - **Pista progressiva:** cada clique revela **mais uma letra, da esquerda para a direita, da mesma palavra**, até faltar só a última (o jogador sempre precisa completar). Só cobra quando revela; sem moedas ou sem nada a revelar, não cobra. As letras reveladas ficam salvas (`LevelProgress.clues`). Escolha da palavra: continua a mais avançada; senão começa pela mais curta.
 
+### Dificuldade das secretas (Fase 2.2)
+- **Orçamento por nível (verificado por teste):** iniciante ≤5 palavras de ≤5 letras; intermediário ≤6 palavras de ≤6 letras; avançado ≤8 palavras de ≤9 letras. Listas revisadas para vocabulário **comum** (saíram *gait, sire, terse, erect, hail, mole, phony, raptor, crest…*).
+- **Letra grátis:** iniciante mostra a 1ª letra de cada palavra escondida (`FREE_LETTERS`); intermediário e avançado, nenhuma. A 1ª letra paga começa depois das grátis (nenhuma moeda desperdiçada).
+- **Dica de tradução (1 moeda):** tocar numa palavra escondida oferece mostrar o significado em português (ajuda a deduzir a palavra em inglês). Pede confirmação, cobra uma vez por palavra e fica salva (`LevelProgress.peeks`).
+- **Backlog relacionado:** palavras bônus (palavra comum válida fora da grade, sem moeda), dica de "travado" após várias tentativas erradas, estrelas por fase.
+
 ## Sequência de dias 🔥 (Fase 2.1)
 - Conta o dia como ativo ao **progredir de verdade** (achar secreta, resolver principal, concluir frase ou revisão), não só por abrir o app. Dia local (`YYYY-MM-DD`).
 - Dia seguinte +1; dia pulado reinicia em 1 (guarda o melhor). A sequência continua viva até o fim do dia seguinte ao último; chama colorida = hoje já ativo, cinza = jogue hoje para manter.

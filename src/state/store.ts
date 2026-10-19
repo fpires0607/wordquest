@@ -78,12 +78,19 @@ export const actions = {
    * Buys one more revealed letter for `word`. Charges only when it succeeds, so a failed or
    * impossible clue never costs coins. Returns the new revealed count, or null.
    */
-  buyClue(id: string, word: string, cost: number): number | null {
+  buyClue(id: string, word: string, cost: number, free = 0): number | null {
     if (state.coins < cost) return null
     const lp = levelProgress(state, id)
-    const next = (lp.clues?.[word] ?? 0) + 1
+    const next = Math.max(lp.clues?.[word] ?? 0, free) + 1 // free letters are already visible, so paying starts after them
     patchLevel(id, (x) => ({ ...x, clues: { ...x.clues, [word]: next } }), -cost)
     return next
+  },
+  /** Buys the Portuguese meaning of a hidden word. Never charges twice, nor when it can't afford it. */
+  buyPeek(id: string, word: string, cost: number): boolean {
+    const lp = levelProgress(state, id)
+    if (lp.peeks?.includes(word) || state.coins < cost) return false
+    patchLevel(id, (x) => ({ ...x, peeks: [...(x.peeks ?? []), word] }), -cost)
+    return true
   },
   spend(cost: number) {
     if (state.coins < cost) return false

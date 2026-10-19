@@ -45,6 +45,18 @@ describe('sentences', () => {
   })
 })
 
+describe('difficulty budget for secret words', () => {
+  // keeps secrets fair: easy levels only use short words (the curated lists use common vocabulary)
+  const budget = { beginner: { max: 5, len: 5 }, intermediate: { max: 6, len: 6 }, advanced: { max: 8, len: 9 } }
+  for (const l of LEVELS) {
+    it(`${l.id} (${l.difficulty})`, () => {
+      const b = budget[l.difficulty]
+      expect(l.secretWords.length).toBeLessThanOrEqual(b.max)
+      for (const w of l.secretWords) expect(w.text.length, w.text).toBeLessThanOrEqual(b.len)
+    })
+  }
+})
+
 describe('level content integrity', () => {
   for (const l of LEVELS) {
     it(`${l.id}: secrets are formable, unique and well-formed`, () => {

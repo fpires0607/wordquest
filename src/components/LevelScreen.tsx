@@ -6,13 +6,13 @@ import { evaluateGuess, type TileState } from '../engine/evaluate'
 import { makeWheel } from '../engine/letters'
 import { validateSecretWord } from '../engine/secrets'
 import { pickVariant } from '../engine/sentences'
-import { nextClue } from '../engine/clues'
+import { FREE_LETTERS, nextClue } from '../engine/clues'
 import { sfx } from '../lib/sfx'
 import { actions, getState, levelProgress, useProgress } from '../state/store'
 import { ReviewCard } from './ReviewCard'
 import { SecretGrid } from './SecretGrid'
 import { SentenceBuilder } from './SentenceBuilder'
-import { CoinBadge, Confetti, SoundToggle, StreakChip } from './ui'
+import { CoinBadge, Confetti, Sheet, SoundToggle, StreakChip } from './ui'
 import { Wheel } from './Wheel'
 import { WordSheet } from './WordSheet'
 
@@ -32,7 +32,7 @@ interface SheetState {
 // Economy: kept deliberately tight so hints matter. Secret words stay at +1 each.
 const REWARD_MAIN = 3
 const REWARD_SENTENCE = 1
-const COST = { letter: 3, meaning: 1, clue: 2 }
+const COST = { letter: 3, meaning: 1, clue: 2, peek: 1 }
 
 interface Props {
   levelId: string
@@ -55,6 +55,7 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
   const [rows, setRows] = useState<Row[]>([])
   const [hinted, setHinted] = useState<Record<number, string>>({})
   const [meaningShown, setMeaningShown] = useState(false)
+  const [peek, setPeek] = useState<WordInfo | null>(null) // hidden word whose meaning the player may buy
   const [view, setView] = useState<'main' | 'secrets'>(lp.completed ? 'secrets' : 'main')
   const [toast, setToast] = useState<string | null>(null)
   const [shake, setShake] = useState(0)
@@ -229,9 +230,9 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
   }
   // Progressive clue: reveals one more letter of the same word each time; never charges when nothing can be revealed.
   const hintClue = () => {
-    const target = nextClue(level.secretWords.map((w) => w.text), lp.secrets, lp.clues ?? {})
+    const target = nextClue(level.secretWords.map((w) => w.text), lp.secrets, lp.clues ?? {}, free)
     if (!target) return flash(secretsLeft === 0 ? 'You found all the secrets! 🏆' : 'Every hidden word already shows all but its last letter')
-    if (actions.buyClue(levelId, target, COST.clue) === null) return flash('Not enough coins 🪙', true)
+    if (actions.buyClue(levelId, target, COST.clue, free) === null) return flash('Not enough coins 🪙', true)
     sfx('coin')
   }
 
@@ -262,8 +263,9 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
   const sentence = pickVariant(level.sentences, (playIndex.current ?? 0) + sentenceRound)
   const slotCount = Math.max(main.length, sel.length)
   const showBoard = stage === 'word' || stage === 'explore'
+  const free = FREE_LETTERS[level.difficulty]
   const secretsView = stage === 'explore' || view === 'secrets'
-  const clueAvailable = nextClue(level.secretWords.map((w) => w.text), lp.secrets, lp.clues ?? {}) !== null
+  const clueAvailable = nextClue(level.secretWords.map((w) => w.text), lp.secrets, lp.clues ?? {}, free) !== null
   const themeStyle = {
     '--from': world.theme.from,
     '--to': world.theme.to,
@@ -314,10 +316,17 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
                 words={level.secretWords}
                 found={lp.secrets}
                 clues={lp.clues ?? {}}
+                free={free}
+                peeks={lp.peeks ?? []}
+                onPeek={setPeek}
                 onOpen={(w) => setSheet({ word: w, kind: 'known', cta: 'Got it' })}
               />
               <div className="mission">
-                {stage === 'word' ? 'Optional · +1 🪙 for each new word' : (
+                {stage === 'word' ? (
+                  <>
+                    Optional · +1 🪙 per word · tap a blank word to see its meaning ({COST.peek}🪙){free > 0 ? ' · first letters are free' : ''}
+                  </>
+                ) : (
                   <>
                     <b>{main.toUpperCase()}</b> solved ✔ — {secretsLeft ? 'find the hidden words!' : 'all secrets found! 🏆'}
                   </>
@@ -487,6 +496,30 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
             </button>
           </div>
         </div>
+      )}
+
+      {peek && (
+        <Sheet>
+          <div className="word-card">
+            <div className="word-big">{peek.text.length} letters</div>
+            <p className="meaning">Want to see the meaning of this hidden word? It helps you work out the English word.</p>
+            <div className="stack" style={{ alignSelf: 'center' }}>
+              <button
+                className="btn primary"
+                onClick={() => {
+                  if (actions.buyPeek(levelId, peek.text, COST.peek)) sfx('coin')
+                  else flash('Not enough coins 🪙', true)
+                  setPeek(null)
+                }}
+              >
+                Show meaning · {COST.peek} 🪙
+              </button>
+              <button className="btn ghost" onClick={() => setPeek(null)}>
+                Not now
+              </button>
+            </div>
+          </div>
+        </Sheet>
       )}
 
       {sheet && (

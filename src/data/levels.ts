@@ -23,13 +23,11 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'Can I have some ___ and butter, please?', distractors: ['bear', 'beard'] },
     },
     secretWords: [
-      w('beard', 'barba', 'He has a long grey beard.'),
+      w('bed', 'cama', 'I sleep in a big bed.'),
+      w('red', 'vermelho', 'She wears a red hat.'),
+      w('ear', 'orelha', 'My left ear hurts.'),
       w('read', 'ler', 'I read a book before bed.'),
       w('bear', 'urso', 'A bear lives in the forest.'),
-      w('dare', 'ousar', 'I dare you to jump!'),
-      w('road', 'estrada', 'The road is long and quiet.'),
-      w('ear', 'orelha', 'My left ear hurts.'),
-      w('red', 'vermelho', 'She wears a red hat.'),
     ],
     sentences: [
       {
@@ -62,9 +60,9 @@ export const LEVELS: Level[] = [
       w('tree', 'árvore', 'The tree is very tall.'),
       w('rest', 'descansar', 'I need to rest after lunch.'),
       w('test', 'teste', 'We have a test on Friday.'),
-      w('steer', 'guiar', 'Please steer the boat to the left.'),
+      w('star', 'estrela', 'I can see a bright star.'),
+      w('seat', 'assento', 'Please take a seat.'),
       w('reset', 'reiniciar', 'Reset your password today.'),
-      w('tester', 'testador', 'The tester found a small bug.'),
     ],
     sentences: [
       {
@@ -96,10 +94,11 @@ export const LEVELS: Level[] = [
     secretWords: [
       w('charm', 'charme', 'The old town has a lot of charm.'),
       w('march', 'marchar', 'They march through the city.'),
-      w('champ', 'campeão', 'Our team is the champ!'),
-      w('cramp', 'câimbra', 'I felt a cramp in my leg.'),
-      w('army', 'exército', 'He joined the army last year.'),
       w('camp', 'acampar', 'We camp near the lake.'),
+      w('army', 'exército', 'He joined the army last year.'),
+      w('cream', 'creme', 'Add some cream to the coffee.'),
+      w('cheap', 'barato', 'This shirt is very cheap.'),
+      w('harm', 'dano', 'Smoking can harm you.'),
     ],
     sentences: [
       {
@@ -131,12 +130,11 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'She plays the ___ in a rock band.', distractors: ['drum', 'piano'] },
     },
     secretWords: [
-      w('great', 'ótimo', 'That was a great show.'),
-      w('gait', 'jeito de andar', 'He has a slow gait.'),
-      w('rug', 'tapete', 'The rug is soft and warm.'),
-      w('tug', 'puxar', 'Tug the rope gently.'),
-      w('art', 'arte', 'I love modern art.'),
       w('air', 'ar', 'The air is fresh today.'),
+      w('art', 'arte', 'I love modern art.'),
+      w('great', 'ótimo', 'That was a great show.'),
+      w('gate', 'portão', 'Close the gate, please.'),
+      w('tea', 'chá', 'I drink tea every morning.'),
     ],
     sentences: [
       {
@@ -167,11 +165,11 @@ export const LEVELS: Level[] = [
     },
     secretWords: [
       w('model', 'modelo', 'She is a fashion model.'),
-      w('demo', 'demonstração', 'Watch the demo video first.'),
       w('medal', 'medalha', 'He won a gold medal.'),
-      w('mole', 'toupeira', 'A mole digs under the ground.'),
+      w('meal', 'refeição', 'Dinner is my favorite meal.'),
+      w('lady', 'senhora', 'That lady is my teacher.'),
+      w('made', 'fez', 'She made a cake.'),
       w('old', 'velho', 'My grandfather is old but strong.'),
-      w('dome', 'cúpula', 'The dome is made of glass.'),
     ],
     sentences: [
       {
@@ -201,12 +199,13 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'The orchestra performed a ___ by a famous composer.', distractors: ['melody', 'whisper'] },
     },
     secretWords: [
-      w('phony', 'falso', 'That phone call felt phony.'),
-      w('hymn', 'hino', 'We sang a hymn together.'),
-      w('pony', 'pônei', 'She rides a small pony.'),
-      w('nosy', 'enxerido', 'My neighbor is very nosy.'),
       w('shy', 'tímido', 'He is shy with new people.'),
       w('spy', 'espião', 'A spy keeps many secrets.'),
+      w('pony', 'pônei', 'She rides a small pony.'),
+      w('shop', 'loja', 'The shop opens at nine.'),
+      w('soap', 'sabonete', 'Wash your hands with soap.'),
+      w('nosy', 'enxerido', 'My neighbor is very nosy.'),
+      w('hymn', 'hino', 'We sang a hymn together.'),
     ],
     sentences: [
       {
@@ -238,12 +237,11 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'Please show your ___ at the gate.', distractors: ['kite', 'stick'] },
     },
     secretWords: [
-      w('kite', 'pipa', 'The kite flies high today.'),
-      w('tick', 'marcar', 'Tick the box with a pen.'),
-      w('stick', 'vara', 'Pick up that stick.'),
       w('ice', 'gelo', 'Put some ice in the glass.'),
       w('tie', 'gravata', 'He wears a blue tie.'),
-      w('cite', 'citar', 'Always cite your sources.'),
+      w('kite', 'pipa', 'The kite flies high today.'),
+      w('sit', 'sentar', 'Please sit here.'),
+      w('sick', 'doente', 'My brother is sick today.'),
     ],
     sentences: [
       {
@@ -273,11 +271,11 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'Our plane leaves from the ___ at six.', distractors: ['harbor', 'station'] },
     },
     secretWords: [
-      w('port', 'porto', 'The ship is in port.'),
       w('trip', 'viagem', 'Our trip was really fun.'),
       w('pair', 'par', 'I bought a pair of shoes.'),
       w('part', 'parte', 'This is the best part.'),
-      w('raptor', 'ave de rapina', 'A raptor hunts from the sky.'),
+      w('port', 'porto', 'The ship is in port.'),
+      w('rope', 'corda', 'Pull the rope gently.'),
       w('pirate', 'pirata', 'A pirate sails the sea.'),
     ],
     sentences: [
@@ -309,11 +307,12 @@ export const LEVELS: Level[] = [
     },
     secretWords: [
       w('sport', 'esporte', 'Soccer is my favorite sport.'),
-      w('strap', 'alça', 'Fix the strap of your bag.'),
       w('pass', 'passar', 'Pass me the salt, please.'),
-      w('post', 'enviar pelo correio', 'I will post the letter today.'),
       w('past', 'passado', 'In the past, we walked to school.'),
-      w('trap', 'armadilha', 'The mouse is in the trap.'),
+      w('post', 'correio', 'I will post the letter today.'),
+      w('step', 'passo', 'Take one step forward.'),
+      w('stop', 'parar', 'Stop at the red light.'),
+      w('paper', 'papel', 'I need a sheet of paper.'),
     ],
     sentences: [
       {
@@ -345,12 +344,11 @@ export const LEVELS: Level[] = [
       cloze: { sentence: "Please don't tell anyone, it's a ___.", distractors: ['crest', 'secure'] },
     },
     secretWords: [
-      w('crest', 'crista', 'The bird has a red crest.'),
       w('rest', 'descansar', 'Let us rest for a minute.'),
       w('tree', 'árvore', 'A tree grows by the river.'),
-      w('reset', 'reiniciar', 'Press the button to reset it.'),
-      w('terse', 'seco / direto', 'Her answer was short and terse.'),
-      w('erect', 'ereto', 'Stand erect and look ahead.'),
+      w('set', 'pôr', 'Set the table, please.'),
+      w('see', 'ver', 'I can see the sea.'),
+      w('let', 'deixar', 'Let me help you.'),
     ],
     sentences: [
       {
@@ -380,12 +378,12 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'Nobody knows who took it. It is a real ___.', distractors: ['history', 'master'] },
     },
     secretWords: [
-      w('stem', 'caule', 'The stem of the flower is green.'),
-      w('terms', 'termos', 'Read the terms first.'),
-      w('master', 'mestre', 'He is a chess master.'),
-      w('yet', 'ainda', 'I am not ready yet.'),
-      w('try', 'tentar', 'Try again, you can do it!'),
       w('yes', 'sim', 'Yes, I can help you.'),
+      w('try', 'tentar', 'Try again, you can do it!'),
+      w('stay', 'ficar', 'Please stay here.'),
+      w('easy', 'fácil', 'The test is easy.'),
+      w('team', 'equipe', 'Our team is very fast.'),
+      w('master', 'mestre', 'He is a chess master.'),
     ],
     sentences: [
       {
@@ -419,10 +417,10 @@ export const LEVELS: Level[] = [
       w('brain', 'cérebro', 'Use your brain!'),
       w('train', 'trem', 'The train is late.'),
       w('birth', 'nascimento', 'Her birth was in May.'),
-      w('hairy', 'peludo', 'The dog is very hairy.'),
-      w('hint', 'dica', 'Give me a hint, please.'),
-      w('lair', 'covil', 'The lion went back to its lair.'),
       w('learn', 'aprender', 'I learn English every day.'),
+      w('hint', 'dica', 'Give me a hint, please.'),
+      w('rain', 'chuva', 'The rain is cold.'),
+      w('tail', 'cauda', 'The dog has a long tail.'),
     ],
     sentences: [
       {
@@ -454,12 +452,12 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'We have a team ___ at nine tomorrow.', distractors: ['melting', 'meaning'] },
     },
     secretWords: [
-      w('meet', 'encontrar / reunir-se', 'Let us meet at the office.'),
-      w('time', 'tempo / hora', 'What time is the call?'),
+      w('meet', 'encontrar', 'Let us meet at the office.'),
+      w('time', 'hora / tempo', 'What time is the call?'),
       w('team', 'equipe', 'Our team is very fast.'),
       w('ten', 'dez', 'We are ten in the team.'),
-      w('gem', 'joia / pérola', 'She is a gem at work.'),
-      w('mint', 'hortelã', 'This tea has mint.'),
+      w('name', 'nome', 'Write your name here.'),
+      w('game', 'jogo', 'We play a game after work.'),
     ],
     sentences: [
       {
@@ -497,12 +495,11 @@ export const LEVELS: Level[] = [
       cloze: { sentence: 'I love this TV ___, I watch every episode.', distractors: ['seeds', 'serious'] },
     },
     secretWords: [
-      w('rise', 'subir / nascer', 'The sun will rise soon.'),
-      w('sire', 'senhor (antigo)', 'The knight said, “Yes, sire.”'),
       w('see', 'ver', 'I can see the screen.'),
       w('sir', 'senhor', 'Excuse me, sir.'),
-      w('rises', 'sobe', 'The hero rises at the end.'),
+      w('rise', 'subir', 'The sun will rise soon.'),
       w('ears', 'orelhas', 'Cover your ears, it is loud!'),
+      w('sea', 'mar', 'The sea is calm tonight.'),
     ],
     sentences: [
       {
@@ -534,11 +531,11 @@ export const LEVELS: Level[] = [
       cloze: { sentence: "I'm tired. I just want to ___ on the couch.", distractors: ['child', 'chilly'] },
     },
     secretWords: [
-      w('hill', 'colina', 'The house is on a hill.'),
-      w('call', 'ligar / chamar', 'Call me after class.'),
-      w('all', 'tudo / todos', 'We are all here.'),
+      w('all', 'todos', 'We are all here.'),
       w('ill', 'doente', 'He is ill today.'),
-      w('hail', 'granizo', 'Hail hit the car.'),
+      w('call', 'ligar', 'Call me after class.'),
+      w('hill', 'colina', 'The house is on a hill.'),
+      w('hi', 'oi', 'Hi! How are you?'),
     ],
     sentences: [
       {

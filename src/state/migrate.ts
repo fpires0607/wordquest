@@ -10,6 +10,8 @@ export interface LevelProgress {
   plays: number
   /** letters revealed by paid secret clues, per word (optional: older saves lack it) */
   clues?: Record<string, number>
+  /** hidden words whose translation was bought (optional: older saves lack it) */
+  peeks?: string[]
 }
 /** Learning history per SENSE (contextual meaning), main words only. Secrets never count as mastery. */
 export interface MeaningProgress {

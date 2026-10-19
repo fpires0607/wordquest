@@ -335,3 +335,9 @@ button:disabled { cursor: default; }
 .streak.lit .flame { animation: bob 1.4s ease-in-out infinite; }
 .streak.big { width: 100%; padding: 10px 14px; font-size: 22px; margin: 4px 0 8px; border-radius: 18px; }
 .streak.big small { font-size: 13px; font-weight: 500; opacity: .9; margin-left: 4px; }
+
+/* secret grid: rows are buttons (tap a blank word to peek its meaning) */
+.sg-word { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; color: inherit; }
+.sg-boxes { display: inline-flex; gap: 4px; }
+.sg-word.open:active { transform: translateY(2px); }
+.sg-caption { font-size: 13px; color: var(--accent); font-weight: 600; max-width: 140px; text-align: center; line-height: 1.1; }

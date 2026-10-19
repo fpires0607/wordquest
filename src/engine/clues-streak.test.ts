@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { actions, getState, levelProgress } from '../state/store'
 import { migrateProgress } from '../state/migrate'
-import { nextClue } from './clues'
+import { FREE_LETTERS, nextClue } from './clues'
 import { bumpStreak, currentStreak, dayKey, emptyStreak, type Streak } from './streak'
 
 describe('progressive secret clue', () => {
@@ -17,6 +17,38 @@ describe('progressive secret clue', () => {
   it('moves on when the helped word is found, and never targets found words', () => {
     expect(nextClue(words, ['rug'], { rug: 1 })).toBe('tug')
     expect(nextClue(words, words, {})).toBeNull()
+  })
+})
+
+describe('free letters by difficulty', () => {
+  it('beginner shows the first letter of every word, harder levels none', () => {
+    expect(FREE_LETTERS).toEqual({ beginner: 1, intermediate: 0, advanced: 0 })
+  })
+  it('free letters count as already revealed when choosing the next clue', () => {
+    // 3-letter words with 1 free letter can still be clued once (up to length-1 = 2 shown)
+    expect(nextClue(['air', 'art'], [], {}, 1)).toBe('air')
+    expect(nextClue(['air', 'art'], [], { air: 2 }, 1)).toBe('art')
+    expect(nextClue(['hi'], [], {}, 1)).toBeNull() // 2-letter word: 1 free letter leaves exactly the last one
+  })
+  it('the first paid clue starts AFTER the free letters (no wasted coin)', () => {
+    actions.reset()
+    actions.earn(10)
+    expect(actions.buyClue('music-guitar', 'air', 2, 1)).toBe(2)
+    expect(getState().coins).toBe(11)
+  })
+})
+
+describe('buying the meaning of a hidden word', () => {
+  beforeEach(() => actions.reset())
+  it('charges once per word, never twice, never without coins', () => {
+    expect(actions.buyPeek('music-guitar', 'air', 1)).toBe(true)
+    expect(getState().coins).toBe(2)
+    expect(actions.buyPeek('music-guitar', 'air', 1)).toBe(false) // already bought
+    expect(getState().coins).toBe(2)
+    expect(levelProgress(getState(), 'music-guitar').peeks).toEqual(['air'])
+    actions.spend(2)
+    expect(actions.buyPeek('music-guitar', 'art', 1)).toBe(false) // no coins
+    expect(levelProgress(getState(), 'music-guitar').peeks).toEqual(['air'])
   })
 })
 
