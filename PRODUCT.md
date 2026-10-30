@@ -32,13 +32,13 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 
 | Mundo | Fases | Observação |
 |---|---|---|
-| Travel World | ticket, airport, passport | |
-| Business World | meeting | conteúdo novo |
-| Music World | guitar, melody, symphony | só conteúdo original (ver *Music World*) |
-| Movies & Series | series | conteúdo novo |
-| Everyday Life | bread, street, pharmacy | antigo *Everyday City* (ids `city-*` mantidos) |
-| Slang & Culture | chill | conteúdo novo |
-| **Mystery Words** (modo especial, `kind: 'mode'`) | secret, mystery, labyrinth | deixou de ser mundo de interesse; progresso preservado |
+| Travel World | ticket, hotel · airport, luggage · passport | |
+| Business World | email, office · meeting, deadline · contract | conteúdo novo |
+| Music World | guitar, piano · melody, singer · symphony | só conteúdo original (ver *Music World*) |
+| Movies & Series | series, movie · actor, scene · director | conteúdo novo |
+| Everyday Life | bread, water · street, kitchen · pharmacy | antigo *Everyday City* (ids `city-*` mantidos) |
+| Slang & Culture | chill, dude · awesome, slang · awkward | conteúdo novo |
+| **Mystery Words** (modo especial, `kind: 'mode'`) | secret, shadow · mystery, detective · labyrinth | deixou de ser mundo de interesse; progresso preservado |
 
 - **Onboarding:** nível + **múltiplos interesses** (mín. 1); editável depois (✏️ na Home). Mundos escolhidos aparecem primeiro; os demais ficam em *More worlds*; todos continuam acessíveis.
 - Estrutura: `World { kind: 'interest' | 'mode', levelIds, theme, categories }`; `Level.worldId`. Novo mundo/fase = só dados.
@@ -59,6 +59,8 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 - Conta o dia como ativo ao **progredir de verdade** (achar secreta, resolver principal, concluir frase ou revisão), não só por abrir o app. Dia local (`YYYY-MM-DD`).
 - Dia seguinte +1; dia pulado reinicia em 1 (guarda o melhor). A sequência continua viva até o fim do dia seguinte ao último; chama colorida = hoje já ativo, cinza = jogue hoje para manter.
 - Persistido em `Progress.streak` (campo aditivo; saves sem ele recebem o padrão). Sem congelamento nem recompensa em moedas por enquanto.
+
+**Pacote de conteúdo (Fase 3.2):** 35 fases, 5 por mundo (2 iniciante · 2 intermediário · 1 avançado), em `data/levels.ts` (originais) + `data/levels-more.ts` (expansão). `levelsOfWorld` ordena por dificuldade (estável). Cada fase nova segue as mesmas regras: secretas comuns dentro do orçamento por nível, frases originais com `gloss` completo e novos significados em `data/senses.ts`. Os testes validam letras formáveis, orçamento, alinhamento do glossário e categorias.
 
 ## Fluxo de uma fase
 `Palavra principal` → `Cartão da palavra` (tradução, explicação, exemplo, 🔊) → `Frase` (ordenar) → **uma atividade extra que alterna** (`Flashback` de palavra já aprendida, `Ouvir e escolher` ou `Ligar pares`) → `Celebração` com estrelas. Palavras secretas podem ser achadas a qualquer momento e depois, na revisita. Na tela de fase concluída há 🎯 **Challenge** e ✍️ **New sentence** para praticar de novo (sem recompensa extra).

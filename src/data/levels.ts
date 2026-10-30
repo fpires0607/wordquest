@@ -1,4 +1,5 @@
 import type { Level, WordInfo } from './types'
+import { EXTRA_LEVELS } from './levels-more'
 
 // Content rules: every sentence below is original (no commercial lyrics).
 // Secret words are curated and checked by engine.test.ts against the wheel letters.
@@ -6,7 +7,7 @@ import type { Level, WordInfo } from './types'
 // `gloss`: one item per word of the sentence — see SentenceChallenge in types.ts.
 const w = (text: string, translation: string, example: string): WordInfo => ({ text, translation, example })
 
-export const LEVELS: Level[] = [
+const BASE_LEVELS: Level[] = [
   // ───────────── Everyday Life (formerly "Everyday City"; ids keep the old prefix) ─────────────
   {
     id: 'city-bread',
@@ -551,5 +552,7 @@ export const LEVELS: Level[] = [
     ],
   },
 ]
+
+export const LEVELS: Level[] = [...BASE_LEVELS, ...EXTRA_LEVELS]
 
 export const levelById = (id: string) => LEVELS.find((l) => l.id === id)!

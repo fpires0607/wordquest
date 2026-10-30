@@ -1,7 +1,12 @@
 import type { World } from './types'
 import { LEVELS } from './levels'
 
-const ids = (worldId: string) => LEVELS.filter((l) => l.worldId === worldId).map((l) => l.id)
+const RANK = { beginner: 0, intermediate: 1, advanced: 2 } as const
+/** A world's levels, easiest first (stable: authoring order breaks ties). */
+export function levelsOfWorld(worldId: string) {
+  return LEVELS.filter((l) => l.worldId === worldId).sort((a, b) => RANK[a.difficulty] - RANK[b.difficulty])
+}
+const ids = (worldId: string) => levelsOfWorld(worldId).map((l) => l.id)
 
 // Worlds = player interests (any difficulty inside). Modes = special challenge sets.
 // Adding a world = adding an entry here + levels (worldId) in levels.ts. No engine changes.
@@ -23,7 +28,7 @@ export const WORLDS: World[] = [
     description: 'Professional English for work.',
     icon: '💼',
     theme: { from: '#2f9e8f', to: '#1b4f72', accent: '#b6f2e6', deco: ['📈', '💻', '☕', '📅'] },
-    categories: ['Workplace'],
+    categories: ['Workplace', 'Documents'],
     levelIds: ids('business'),
   },
   {
@@ -43,7 +48,7 @@ export const WORLDS: World[] = [
     description: 'Films, shows and dialogue.',
     icon: '🎬',
     theme: { from: '#e5484d', to: '#7b2cbf', accent: '#ffd9a0', deco: ['🍿', '🎥', '⭐', '📺'] },
-    categories: ['TV'],
+    categories: ['TV', 'Cinema', 'Cast & crew'],
     levelIds: ids('movies'),
   },
   {
@@ -63,7 +68,7 @@ export const WORLDS: World[] = [
     description: 'Slang, idioms and how people really talk.',
     icon: '🗣️',
     theme: { from: '#ff4d94', to: '#ff8f00', accent: '#ffe3f0', deco: ['😎', '💬', '🔥', '🌎'] },
-    categories: ['Casual talk'],
+    categories: ['Casual talk', 'Expressions', 'Feelings'],
     levelIds: ids('slang'),
   },
   {
@@ -82,4 +87,3 @@ export const INTEREST_WORLDS = WORLDS.filter((w) => w.kind === 'interest')
 export const MODES = WORLDS.filter((w) => w.kind === 'mode')
 export const worldById = (id: string) => WORLDS.find((w) => w.id === id)!
 export const isInterestId = (id: string) => INTEREST_WORLDS.some((w) => w.id === id)
-export const levelsOfWorld = (worldId: string) => LEVELS.filter((l) => l.worldId === worldId)
