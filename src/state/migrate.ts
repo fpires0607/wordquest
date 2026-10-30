@@ -1,7 +1,8 @@
 import { LEVELS } from '../data/levels'
 import type { Difficulty } from '../data/types'
 import { INTEREST_WORLDS } from '../data/worlds'
-import { emptyStreak, type Streak } from '../engine/streak'
+import { ACHIEVEMENTS, unlockedIds } from '../engine/achievements'
+import { dayKey, emptyStreak, type Streak } from '../engine/streak'
 
 export interface LevelProgress {
   completed: boolean
@@ -31,6 +32,7 @@ export interface Progress {
   meanings: Record<string, MeaningProgress>
   streak: Streak // days in a row with activity (additive field: older v2 saves get the default)
   bosses: Record<string, number> // best Final Challenge medal (1-3) per world id (additive field)
+  achievements: Record<string, string> // earned achievement id -> day earned (additive field)
 }
 
 export const CURRENT_VERSION = 2
@@ -45,6 +47,7 @@ export const freshProgress = (): Progress => ({
   meanings: {},
   streak: emptyStreak(),
   bosses: {},
+  achievements: {},
 })
 
 const isObj = (v: unknown): v is Record<string, any> => typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -60,6 +63,14 @@ function sanitizeBosses(b: unknown): Record<string, number> {
   if (!isObj(b)) return {}
   const out: Record<string, number> = {}
   for (const [k, v] of Object.entries(b)) if (typeof v === 'number' && v >= 1 && v <= 3 && Number.isInteger(v)) out[k] = v
+  return out
+}
+
+function sanitizeAchievements(a: unknown): Record<string, string> | null {
+  if (!isObj(a)) return null
+  const known = new Set(ACHIEVEMENTS.map((x) => x.id))
+  const out: Record<string, string> = {}
+  for (const [k, v] of Object.entries(a)) if (known.has(k) && typeof v === 'string') out[k] = v
   return out
 }
 
@@ -95,6 +106,12 @@ export function migrateProgress(raw: unknown): Progress {
   }
   if (p.version !== 2) return freshProgress()
   const base = freshProgress()
+  const levels = isObj(p.levels) ? p.levels : {}
+  const bosses = sanitizeBosses(p.bosses)
+  const streak = sanitizeStreak(p.streak)
+  // Saves from before achievements existed: credit what is already earned silently (no popup flood).
+  const achievements =
+    sanitizeAchievements(p.achievements) ?? Object.fromEntries(unlockedIds({ levels, bosses, streak }).map((id) => [id, dayKey()]))
   return {
     ...base,
     coins: Number.isFinite(p.coins) ? p.coins : base.coins,
@@ -102,9 +119,10 @@ export function migrateProgress(raw: unknown): Progress {
     sound: typeof p.sound === 'boolean' ? p.sound : base.sound,
     onboarded: !!p.onboarded,
     interests: sanitizeInterests(p.interests),
-    levels: isObj(p.levels) ? p.levels : {},
+    levels,
     meanings: isObj(p.meanings) ? p.meanings : {},
-    streak: sanitizeStreak(p.streak),
-    bosses: sanitizeBosses(p.bosses),
+    streak,
+    bosses,
+    achievements,
   }
 }

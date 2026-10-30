@@ -10,6 +10,8 @@ import { FREE_LETTERS, nextClue } from '../engine/clues'
 import { availableChallenges, buildListen, buildMatch, type ChallengeKind, type ListenQuestion, type Pair } from '../engine/challenges'
 import { nextStarGoal, starsFor } from '../engine/stars'
 import { ListenChallenge, MatchChallenge } from './MiniChallenge'
+import { DialogueChallenge } from './DialogueChallenge'
+import { dialogueFor } from '../data/dialogues'
 import { sfx } from '../lib/sfx'
 import { actions, getState, levelProgress, useProgress } from '../state/store'
 import { ReviewCard } from './ReviewCard'
@@ -511,6 +513,10 @@ export function LevelScreen({ levelId, nextLevelId, onExit, onNext }: Props) {
       )}
       {stage === 'challenge' && challenge && challenge.kind === 'match' && challenge.match && (
         <MatchChallenge key={`m-${challengeRound}`} pairs={challenge.match} onDone={finishChallenge} />
+      )}
+
+      {stage === 'challenge' && challenge && challenge.kind === 'dialogue' && dialogueFor(levelId) && (
+        <DialogueChallenge key={`d-${challengeRound}`} level={level} dialogue={dialogueFor(levelId)!} onDone={finishChallenge} />
       )}
 
       {stage === 'done' && (

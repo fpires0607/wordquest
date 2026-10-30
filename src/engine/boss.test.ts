@@ -6,7 +6,7 @@ import { BOSS_REWARD, BOSS_STARS, bossMedal, bossStatus, buildBossPool, worldSta
 import { buildListenFromPairs, buildMatchFromPairs } from './challenges'
 import { LEVELS } from '../data/levels'
 
-const travel = levelsOfWorld('travel') // ticket, hotel, airport, luggage, passport
+const travel = levelsOfWorld('travel') // ticket, hotel, airport, luggage, passport, souvenir
 const lp = (completed: boolean, sentenceDone: boolean, secrets: string[] = []) => ({ completed, sentenceDone, secrets })
 
 describe('boss unlock', () => {
@@ -15,7 +15,7 @@ describe('boss unlock', () => {
     expect(worldStars(travel, none)).toBe(0)
     expect(bossStatus(travel, none, undefined).unlocked).toBe(false)
     // five levels at 1 star = 5 (< 6)
-    const five: LevelsProgress = Object.fromEntries(travel.map((l) => [l.id, lp(true, false)]))
+    const five: LevelsProgress = Object.fromEntries(travel.slice(0, 5).map((l) => [l.id, lp(true, false)]))
     expect(worldStars(travel, five)).toBe(5)
     expect(bossStatus(travel, five, undefined).unlocked).toBe(false)
     // one more star (a 2-star level) unlocks

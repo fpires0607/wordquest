@@ -1,19 +1,25 @@
 import { useState } from 'react'
 import { Home } from './components/Home'
+import { AchievementToast, AchievementsScreen } from './components/AchievementsScreen'
 import { BossScreen } from './components/BossScreen'
+import { NotebookScreen } from './components/NotebookScreen'
 import { LevelScreen } from './components/LevelScreen'
 import { WorldScreen } from './components/WorldScreen'
 import { levelById } from './data/levels'
 import { worldById } from './data/worlds'
 
-type Route = { name: 'home' } | { name: 'world'; id: string } | { name: 'level'; id: string } | { name: 'boss'; id: string }
+type Route = { name: 'home' } | { name: 'world'; id: string } | { name: 'level'; id: string } | { name: 'boss'; id: string } | { name: 'notebook' } | { name: 'achievements' }
 
 export default function App() {
   const [route, setRoute] = useState<Route>({ name: 'home' })
 
   let body
   if (route.name === 'home') {
-    body = <Home onWorld={(id) => setRoute({ name: 'world', id })} />
+    body = <Home onWorld={(id) => setRoute({ name: 'world', id })} onNotebook={() => setRoute({ name: 'notebook' })} onAchievements={() => setRoute({ name: 'achievements' })} />
+  } else if (route.name === 'notebook') {
+    body = <NotebookScreen onBack={() => setRoute({ name: 'home' })} />
+  } else if (route.name === 'achievements') {
+    body = <AchievementsScreen onBack={() => setRoute({ name: 'home' })} />
   } else if (route.name === 'world') {
     body = (
       <WorldScreen
@@ -39,5 +45,10 @@ export default function App() {
       />
     )
   }
-  return <div className="app">{body}</div>
+  return (
+    <div className="app">
+      {body}
+      <AchievementToast />
+    </div>
+  )
 }

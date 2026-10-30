@@ -92,3 +92,15 @@ export interface MusicChallenge {
   figurative?: FigurativeNote[]
   audio?: { url: string; startSec: number; endSec: number }
 }
+
+// ── Dialogues (gap-fill exercise) ─────────────────────────────────────────
+export interface DialogueLine {
+  who: 'A' | 'B'
+  text: string // exactly one line contains "___" (the gap)
+  pt: string // pt-BR translation of the line (with the gap filled)
+}
+export interface Dialogue {
+  lines: DialogueLine[]
+  options: [string, string, string]
+  answer: string // the level's main word
+}

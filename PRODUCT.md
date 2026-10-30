@@ -32,13 +32,13 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 
 | Mundo | Fases | Observação |
 |---|---|---|
-| Travel World | ticket, hotel · airport, luggage · passport | |
-| Business World | email, office · meeting, deadline · contract | conteúdo novo |
-| Music World | guitar, piano · melody, singer · symphony | só conteúdo original (ver *Music World*) |
-| Movies & Series | series, movie · actor, scene · director | conteúdo novo |
-| Everyday Life | bread, water · street, kitchen · pharmacy | antigo *Everyday City* (ids `city-*` mantidos) |
-| Slang & Culture | chill, dude · awesome, slang · awkward | conteúdo novo |
-| **Mystery Words** (modo especial, `kind: 'mode'`) | secret, shadow · mystery, detective · labyrinth | deixou de ser mundo de interesse; progresso preservado |
+| Travel World | ticket, hotel · airport, luggage · passport, souvenir | |
+| Business World | email, office · meeting, deadline · contract, presentation | conteúdo novo |
+| Music World | guitar, piano · melody, singer · symphony, concert | só conteúdo original (ver *Music World*) |
+| Movies & Series | series, movie · actor, scene · director, trailer | conteúdo novo |
+| Everyday Life | bread, water · street, kitchen · pharmacy, supermarket | antigo *Everyday City* (ids `city-*` mantidos) |
+| Slang & Culture | chill, dude · awesome, slang · awkward, hangout | conteúdo novo |
+| **Mystery Words** (modo especial, `kind: 'mode'`) | secret, shadow · mystery, detective · labyrinth, castle | deixou de ser mundo de interesse; progresso preservado |
 
 - **Onboarding:** nível + **múltiplos interesses** (mín. 1); editável depois (✏️ na Home). Mundos escolhidos aparecem primeiro; os demais ficam em *More worlds*; todos continuam acessíveis.
 - Estrutura: `World { kind: 'interest' | 'mode', levelIds, theme, categories }`; `Level.worldId`. Novo mundo/fase = só dados.
@@ -60,7 +60,7 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 - Dia seguinte +1; dia pulado reinicia em 1 (guarda o melhor). A sequência continua viva até o fim do dia seguinte ao último; chama colorida = hoje já ativo, cinza = jogue hoje para manter.
 - Persistido em `Progress.streak` (campo aditivo; saves sem ele recebem o padrão). Sem congelamento nem recompensa em moedas por enquanto.
 
-**Pacote de conteúdo (Fase 3.2):** 35 fases, 5 por mundo (2 iniciante · 2 intermediário · 1 avançado), em `data/levels.ts` (originais) + `data/levels-more.ts` (expansão). `levelsOfWorld` ordena por dificuldade (estável). Cada fase nova segue as mesmas regras: secretas comuns dentro do orçamento por nível, frases originais com `gloss` completo e novos significados em `data/senses.ts`. Os testes validam letras formáveis, orçamento, alinhamento do glossário e categorias.
+**Pacote de conteúdo (Fases 3.2 e 3.4):** 42 fases, 6 por mundo (2 iniciante · 2 intermediário · 2 avançado), em `data/levels.ts` (originais) + `data/levels-more.ts` + `data/levels-more2.ts`. `levelsOfWorld` ordena por dificuldade (estável). Cada fase nova segue as mesmas regras: secretas comuns dentro do orçamento por nível, frases originais com `gloss` completo e novos significados em `data/senses.ts`. Os testes validam letras formáveis, orçamento, alinhamento do glossário e categorias.
 
 ## Fluxo de uma fase
 `Palavra principal` → `Cartão da palavra` (tradução, explicação, exemplo, 🔊) → `Frase` (ordenar) → **uma atividade extra que alterna** (`Flashback` de palavra já aprendida, `Ouvir e escolher` ou `Ligar pares`) → `Celebração` com estrelas. Palavras secretas podem ser achadas a qualquer momento e depois, na revisita. Na tela de fase concluída há 🎯 **Challenge** e ✍️ **New sentence** para praticar de novo (sem recompensa extra).
@@ -73,7 +73,7 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
   - Usam **só palavras que o jogador já conhece** (palavra da fase, secretas **já achadas**, palavras principais aprendidas em outras fases): nunca revelam secretas escondidas.
   - Alternância: a atividade extra de cada fase gira entre as disponíveis (pelo nº de fases concluídas) para não repetir o mesmo exercício.
   - Recompensa: +1 moeda **uma vez por fase**; sempre conta para a sequência de dias. Acertar secretas em exercícios não vira domínio de vocabulário.
-- **Backlog de profundidade:** diálogos com lacunas (Movies/Business), caderno de palavras aprendidas com revisão, palavras bônus, conquistas.
+- **Backlog de profundidade:** palavras bônus, revisão espaçada no caderno, diálogos para os outros mundos, conquistas por mundo.
 
 ## Final Challenge — fase chefe por mundo (Fase 3.3)
 - Cada mundo (e o modo Mystery) tem um **Final Challenge** no fim do mapa. **Libera com 6 ⭐** somados nas fases daquele mundo (`BOSS_STARS`); trancado mostra quanto falta.
@@ -81,6 +81,17 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
 - **Conteúdo só do que o jogador conquistou naquele mundo** (`buildBossPool`): palavras principais de fases concluídas, secretas **já achadas** e as frases dessas fases. Nada de fases não concluídas nem de secretas escondidas.
 - **Medalha 1–3 ★:** 3 sem deslizes, 2 com um, 1 ao terminar (`bossMedal`). Pode rejogar para melhorar; a melhor fica salva (`Progress.bosses`, campo aditivo) e um 👑 aparece na Home.
 - **+5 moedas só na primeira vitória.** Sempre conta para a sequência de dias. Cada flashback acertado registra uma revisão do significado.
+
+## Diálogos com lacunas (Fase 3.4)
+- Novo exercício extra **💬 Complete the dialogue**: um mini chat de 2 falas com uma lacuna; escolhe-se a palavra entre 3 (parecidas ou erradas no contexto). Depois aparece o chat inteiro com a tradução de cada fala, e dá para tocar nas palavras (palavra da fase = cartão completo; as demais = aviso honesto + tradução da fala).
+- Dados em `data/dialogues.ts` (`Record<levelId, Dialogue>`), a resposta é sempre a palavra principal da fase. Cobre **todas as fases de Business e Movies & Series**. Entra na alternância de atividades extras só nas fases que têm diálogo.
+
+## Caderno de palavras 📒 (Fase 3.4)
+Tela na Home com tudo que o jogador **conquistou**: palavras principais de fases concluídas e secretas **já achadas** (nunca as escondidas), agrupadas por mundo, com busca em inglês/português, filtro por mundo, 🔊, contagem de revisões e cartão completo ao tocar (`engine/notebook.ts`).
+
+## Conquistas 🏅 (Fase 3.4)
+- 24 conquistas, **todas derivadas do progresso** (`engine/achievements.ts`), então valem retroativamente: palavras/fases, secretas (10/50/150), estrelas (15/50/100), 3★, frases, desafios extras, mundos jogados, mundo completo, chefes, medalha perfeita e sequência de dias (3/7/30). Metas "todas" acompanham o tamanho do conteúdo.
+- Tela com progresso por conquista (mais perto de completar primeiro) e **aviso ao desbloquear** (um por vez). Salvas em `Progress.achievements` (id → dia; campo aditivo). Saves antigos recebem as já merecidas **em silêncio**, sem enxurrada de avisos.
 
 ## Economia (sem dinheiro real)
 - Ganha: palavra principal +3 (1ª vez), frase +1 (1ª vez), revisão +1 (acerto de primeira), secreta +1 (1ª vez). Começa com 3 moedas. *(Reduzido na Fase 2.1: ganhar estava fácil demais.)*

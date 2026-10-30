@@ -1,3 +1,4 @@
+import { dialogueFor } from '../data/dialogues'
 import type { Level } from '../data/types'
 import { shuffle } from './letters'
 
@@ -5,7 +6,7 @@ import { shuffle } from './letters'
 // They only use words the player has already met: this level's main word, secrets already found,
 // and main words learned in other levels — so nothing hidden is ever revealed.
 
-export type ChallengeKind = 'listen' | 'match'
+export type ChallengeKind = 'listen' | 'match' | 'dialogue'
 export interface Pair {
   en: string
   pt: string
@@ -54,6 +55,7 @@ export function buildMatch(level: Level, found: string[], learnedOthers: Level[]
 export function availableChallenges(level: Level, found: string[], learnedOthers: Level[]): ChallengeKind[] {
   const kinds: ChallengeKind[] = ['listen']
   if (buildMatch(level, found, learnedOthers, () => 0.5)) kinds.push('match')
+  if (dialogueFor(level.id)) kinds.push('dialogue') // only levels that have a written dialogue
   return kinds
 }
 

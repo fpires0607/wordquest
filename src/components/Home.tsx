@@ -4,6 +4,7 @@ import { INTEREST_WORLDS, MODES, levelsOfWorld } from '../data/worlds'
 import type { Difficulty, World } from '../data/types'
 import { starsFor } from '../engine/stars'
 import { actions, levelProgress, useProgress, type Progress } from '../state/store'
+import { ACHIEVEMENTS } from '../engine/achievements'
 import { Onboarding } from './Onboarding'
 import { CoinBadge, SoundToggle, StreakChip } from './ui'
 
@@ -52,7 +53,7 @@ function WorldCard({ world, p, badge, onOpen }: { world: World; p: Progress; bad
   )
 }
 
-export function Home({ onWorld }: { onWorld(id: string): void }) {
+export function Home({ onWorld, onNotebook, onAchievements }: { onWorld(id: string): void; onNotebook(): void; onAchievements(): void }) {
   const p = useProgress()
   const [editing, setEditing] = useState(false)
 
@@ -76,6 +77,19 @@ export function Home({ onWorld }: { onWorld(id: string): void }) {
       </header>
 
       <StreakChip big />
+
+      <div className="quick-row">
+        <button className="quick" onClick={onNotebook}>
+          📒 <b>Notebook</b>
+          <small>{Object.keys(p.meanings).length} words</small>
+        </button>
+        <button className="quick" onClick={onAchievements}>
+          🏅 <b>Achievements</b>
+          <small>
+            {Object.keys(p.achievements).length}/{ACHIEVEMENTS.length}
+          </small>
+        </button>
+      </div>
 
       <section className="level-pick">
         <p>Your English level</p>

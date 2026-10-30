@@ -36,7 +36,7 @@ describe('world structure', () => {
       expect(new Set(levelsOfWorld(id).map((l) => l.difficulty)).size, id).toBeGreaterThan(1)
     }
     // any world can be filtered by level without changing its membership
-    expect(levelsOfWorld('travel').filter((l) => l.difficulty === 'advanced').map((l) => l.id)).toEqual(['travel-passport'])
+    expect(levelsOfWorld('travel').filter((l) => l.difficulty === 'advanced').map((l) => l.id)).toEqual(['travel-passport', 'travel-souvenir'])
   })
   it('categories declared by a world cover its levels', () => {
     for (const w of WORLDS) for (const l of levelsOfWorld(w.id)) expect(w.categories, l.id).toContain(l.category)

@@ -1,5 +1,6 @@
 import type { Level, WordInfo } from './types'
 import { EXTRA_LEVELS } from './levels-more'
+import { EXTRA_LEVELS_2 } from './levels-more2'
 
 // Content rules: every sentence below is original (no commercial lyrics).
 // Secret words are curated and checked by engine.test.ts against the wheel letters.
@@ -553,6 +554,6 @@ const BASE_LEVELS: Level[] = [
   },
 ]
 
-export const LEVELS: Level[] = [...BASE_LEVELS, ...EXTRA_LEVELS]
+export const LEVELS: Level[] = [...BASE_LEVELS, ...EXTRA_LEVELS, ...EXTRA_LEVELS_2]
 
 export const levelById = (id: string) => LEVELS.find((l) => l.id === id)!

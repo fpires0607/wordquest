@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { Difficulty } from '../data/types'
+import { newlyUnlocked } from '../engine/achievements'
 import { bumpStreak, dayKey } from '../engine/streak'
 import { freshProgress, migrateProgress, sanitizeInterests, type LevelProgress, type Progress } from './migrate'
 
@@ -20,14 +21,25 @@ function load(): Progress {
 let state: Progress = load()
 const listeners = new Set<() => void>()
 
+const achListeners = new Set<(ids: string[]) => void>()
+/** Subscribe to newly unlocked achievements (fires once per unlock, never for the silent catch-up on load). */
+export const onAchievements = (cb: (ids: string[]) => void) => {
+  achListeners.add(cb)
+  return () => {
+    achListeners.delete(cb)
+  }
+}
+
 function commit(next: Progress) {
-  state = next
+  const fresh = newlyUnlocked(next, next.achievements)
+  state = fresh.length ? { ...next, achievements: { ...next.achievements, ...Object.fromEntries(fresh.map((id) => [id, dayKey()])) } } : next
   try {
     localStorage.setItem(KEY, JSON.stringify(state))
   } catch {
     /* ignore quota/private-mode errors */
   }
   listeners.forEach((l) => l())
+  if (fresh.length) achListeners.forEach((cb) => cb(fresh))
 }
 
 export const getState = () => state
