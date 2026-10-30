@@ -35,7 +35,10 @@ function WorldCard({ world, p, badge, onOpen }: { world: World; p: Progress; bad
       <span className="deco d3">{world.theme.deco[2]}</span>
       <div className="world-icon">{world.icon}</div>
       <div className="world-info">
-        <h3>{world.title}</h3>
+        <h3>
+          {world.title}
+          {p.bosses[world.id] ? ' 👑' : ''}
+        </h3>
         <p>{world.description}</p>
         <div className="bar">
           <i style={{ width: `${(st.done / st.total) * 100}%` }} />

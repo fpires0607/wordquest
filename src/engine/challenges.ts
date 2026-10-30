@@ -57,3 +57,25 @@ export function availableChallenges(level: Level, found: string[], learnedOthers
   return kinds
 }
 
+
+/** Same as buildListen but from any list of known pairs (used by boss challenges). */
+export function buildListenFromPairs(pairs: Pair[], all: Level[], count = 4, rnd: Rnd = Math.random): ListenQuestion[] {
+  const allPt = new Set<string>()
+  for (const l of all) {
+    allPt.add(l.main.translation)
+    for (const w of l.secretWords) allPt.add(w.translation)
+  }
+  return shuffle(pairs, rnd)
+    .slice(0, count)
+    .map((p) => {
+      const wrong = shuffle([...allPt].filter((t) => t !== p.pt), rnd).slice(0, 2)
+      return { say: p.en, answer: p.pt, options: shuffle([p.pt, ...wrong], rnd) }
+    })
+}
+
+/** 3–4 unique pairs from a known list, or null when there are not enough. */
+export function buildMatchFromPairs(pairs: Pair[], count = 4, rnd: Rnd = Math.random): Pair[] | null {
+  const seen = new Set<string>()
+  const unique = shuffle(pairs, rnd).filter((p) => !seen.has(p.en) && !seen.has(p.pt) && seen.add(p.en) && seen.add(p.pt))
+  return unique.length >= 3 ? unique.slice(0, count) : null
+}

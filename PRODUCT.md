@@ -73,7 +73,14 @@ Mundos são **áreas de interesse**; nível de proficiência é uma escolha sepa
   - Usam **só palavras que o jogador já conhece** (palavra da fase, secretas **já achadas**, palavras principais aprendidas em outras fases): nunca revelam secretas escondidas.
   - Alternância: a atividade extra de cada fase gira entre as disponíveis (pelo nº de fases concluídas) para não repetir o mesmo exercício.
   - Recompensa: +1 moeda **uma vez por fase**; sempre conta para a sequência de dias. Acertar secretas em exercícios não vira domínio de vocabulário.
-- **Backlog de profundidade:** fase chefe por mundo (liberada por estrelas), diálogos com lacunas (Movies/Business), caderno de palavras aprendidas com revisão, palavras bônus, conquistas.
+- **Backlog de profundidade:** diálogos com lacunas (Movies/Business), caderno de palavras aprendidas com revisão, palavras bônus, conquistas.
+
+## Final Challenge — fase chefe por mundo (Fase 3.3)
+- Cada mundo (e o modo Mystery) tem um **Final Challenge** no fim do mapa. **Libera com 6 ⭐** somados nas fases daquele mundo (`BOSS_STARS`); trancado mostra quanto falta.
+- 5 rodadas de exercícios diferentes: *Ouvir e escolher* (4 perguntas), *Ligar pares* (4 pares), *Flashback* ×2 e uma *Frase* para montar.
+- **Conteúdo só do que o jogador conquistou naquele mundo** (`buildBossPool`): palavras principais de fases concluídas, secretas **já achadas** e as frases dessas fases. Nada de fases não concluídas nem de secretas escondidas.
+- **Medalha 1–3 ★:** 3 sem deslizes, 2 com um, 1 ao terminar (`bossMedal`). Pode rejogar para melhorar; a melhor fica salva (`Progress.bosses`, campo aditivo) e um 👑 aparece na Home.
+- **+5 moedas só na primeira vitória.** Sempre conta para a sequência de dias. Cada flashback acertado registra uma revisão do significado.
 
 ## Economia (sem dinheiro real)
 - Ganha: palavra principal +3 (1ª vez), frase +1 (1ª vez), revisão +1 (acerto de primeira), secreta +1 (1ª vez). Começa com 3 moedas. *(Reduzido na Fase 2.1: ganhar estava fácil demais.)*

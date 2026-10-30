@@ -1,14 +1,16 @@
 import type { CSSProperties } from 'react'
 import { levelsOfWorld, worldById } from '../data/worlds'
+import { bossStatus } from '../engine/boss'
 import { starsFor } from '../engine/stars'
 import { levelProgress, useProgress } from '../state/store'
 import { DIFF_LABEL } from './Home'
 import { CoinBadge, SoundToggle } from './ui'
 
-export function WorldScreen({ worldId, onBack, onLevel }: { worldId: string; onBack(): void; onLevel(id: string): void }) {
+export function WorldScreen({ worldId, onBack, onLevel, onBoss }: { worldId: string; onBack(): void; onLevel(id: string): void; onBoss(): void }) {
   const p = useProgress()
   const world = worldById(worldId)
   const levels = levelsOfWorld(worldId)
+  const boss = bossStatus(levels, p.levels, p.bosses[worldId])
   return (
     <div className="screen world-screen" style={{ '--from': world.theme.from, '--to': world.theme.to, '--accent': world.theme.accent } as CSSProperties}>
       <header className="topbar">
@@ -54,6 +56,28 @@ export function WorldScreen({ worldId, onBack, onLevel }: { worldId: string; onB
             </button>
           )
         })}
+        <button className={`boss-node${boss.unlocked ? ' open' : ''}${boss.medal ? ' won' : ''}`} disabled={!boss.unlocked} onClick={onBoss}>
+          <span className="boss-crown">{boss.medal ? '👑' : boss.unlocked ? '⚔️' : '🔒'}</span>
+          <span className="node-info">
+            <b>Final Challenge</b>
+            {boss.unlocked ? (
+              <>
+                <span className="node-stars" aria-label={`medal ${boss.medal} of 3`}>
+                  {[1, 2, 3].map((n) => (
+                    <i key={n} className={boss.medal >= n ? 'on' : ''}>
+                      ★
+                    </i>
+                  ))}
+                </span>
+                <small>{boss.medal ? 'Beat it again for a better medal' : 'Ready! Mixed exercises from this world'}</small>
+              </>
+            ) : (
+              <small>
+                Earn {boss.needed - boss.stars} more ⭐ to unlock ({boss.stars}/{boss.needed})
+              </small>
+            )}
+          </span>
+        </button>
       </div>
     </div>
   )

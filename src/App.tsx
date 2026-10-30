@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Home } from './components/Home'
+import { BossScreen } from './components/BossScreen'
 import { LevelScreen } from './components/LevelScreen'
 import { WorldScreen } from './components/WorldScreen'
 import { levelById } from './data/levels'
 import { worldById } from './data/worlds'
 
-type Route = { name: 'home' } | { name: 'world'; id: string } | { name: 'level'; id: string }
+type Route = { name: 'home' } | { name: 'world'; id: string } | { name: 'level'; id: string } | { name: 'boss'; id: string }
 
 export default function App() {
   const [route, setRoute] = useState<Route>({ name: 'home' })
@@ -14,7 +15,16 @@ export default function App() {
   if (route.name === 'home') {
     body = <Home onWorld={(id) => setRoute({ name: 'world', id })} />
   } else if (route.name === 'world') {
-    body = <WorldScreen worldId={route.id} onBack={() => setRoute({ name: 'home' })} onLevel={(id) => setRoute({ name: 'level', id })} />
+    body = (
+      <WorldScreen
+        worldId={route.id}
+        onBack={() => setRoute({ name: 'home' })}
+        onLevel={(id) => setRoute({ name: 'level', id })}
+        onBoss={() => setRoute({ name: 'boss', id: route.id })}
+      />
+    )
+  } else if (route.name === 'boss') {
+    body = <BossScreen key={route.id} worldId={route.id} onExit={() => setRoute({ name: 'world', id: route.id })} />
   } else {
     const level = levelById(route.id)
     const siblings = worldById(level.worldId).levelIds

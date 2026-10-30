@@ -30,6 +30,7 @@ export interface Progress {
   levels: Record<string, LevelProgress>
   meanings: Record<string, MeaningProgress>
   streak: Streak // days in a row with activity (additive field: older v2 saves get the default)
+  bosses: Record<string, number> // best Final Challenge medal (1-3) per world id (additive field)
 }
 
 export const CURRENT_VERSION = 2
@@ -43,6 +44,7 @@ export const freshProgress = (): Progress => ({
   levels: {},
   meanings: {},
   streak: emptyStreak(),
+  bosses: {},
 })
 
 const isObj = (v: unknown): v is Record<string, any> => typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -52,6 +54,13 @@ export function sanitizeInterests(ids: unknown): string[] {
   if (!Array.isArray(ids)) return []
   const ok = validIds()
   return [...new Set(ids.filter((x): x is string => typeof x === 'string' && ok.has(x)))]
+}
+
+function sanitizeBosses(b: unknown): Record<string, number> {
+  if (!isObj(b)) return {}
+  const out: Record<string, number> = {}
+  for (const [k, v] of Object.entries(b)) if (typeof v === 'number' && v >= 1 && v <= 3 && Number.isInteger(v)) out[k] = v
+  return out
 }
 
 function sanitizeStreak(s: unknown): Streak {
@@ -96,5 +105,6 @@ export function migrateProgress(raw: unknown): Progress {
     levels: isObj(p.levels) ? p.levels : {},
     meanings: isObj(p.meanings) ? p.meanings : {},
     streak: sanitizeStreak(p.streak),
+    bosses: sanitizeBosses(p.bosses),
   }
 }

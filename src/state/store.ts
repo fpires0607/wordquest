@@ -67,6 +67,14 @@ export const actions = {
     markActive()
     return true
   },
+  /** Final Challenge result. Keeps the best medal; coins only for the first win. Returns true on that first win. */
+  finishBoss(worldId: string, medal: number, reward: number) {
+    const prev = state.bosses[worldId] ?? 0
+    const first = prev === 0
+    commit({ ...state, coins: state.coins + (first ? reward : 0), bosses: { ...state.bosses, [worldId]: Math.max(prev, medal) } })
+    markActive()
+    return first
+  },
   /** Mini challenge (listen / match). Pays once per level; always counts as activity for the streak. */
   completeChallenge(id: string, reward: number) {
     const first = !levelProgress(state, id).challengeDone
